@@ -2,24 +2,31 @@
 // Created by amit on 12/01/2020.
 //
 
-#ifndef BIUADVANEDPROG1_MS_2__SERVER_H_
-#define BIUADVANEDPROG1_MS_2__SERVER_H_
+#include "ClientHandler.h"
+
 namespace server_side {
 class Server {
  public:
-  virtual void open(int port) = 0;
+  virtual void open(int port, ClientHandler *c) = 0;
   virtual void stop() = 0;
+  virtual void start(ClientHandler *c) = 0;
 };
 
-class MySerialServer : public Server{
+class MySerialServer : public Server {
 
  public:
-  void open(int port);
+  void open(int port, ClientHandler *c);
   void stop();
-
+  void start(ClientHandler *c);
 
 };
 
+namespace boot {
+
+class Main {
+ public:
+  void main(string port);
+};
+}
 }
 
-#endif //BIUADVANEDPROG1_MS_2__SERVER_H_
