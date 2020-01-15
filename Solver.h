@@ -5,7 +5,7 @@
 
 #include <bits/stdc++.h>
 #include <algorithm>
-
+#include "Searchable.h"
 using namespace std;
 
 template<class Problem, class Solution>
@@ -13,6 +13,14 @@ class Solver {
  public:
   virtual Solution solve(Problem prob) = 0;
 
+};
+template<class Problem, class Solution>
+class ObjectAdapter : public Solver<Problem, Solution> {
+ private:
+  Searcher<Problem> searcher;
+ public:
+
+  Solution solve(Problem prob);
 };
 
 class StringReverser : public Solver<string, string> {

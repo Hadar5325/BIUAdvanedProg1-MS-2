@@ -1,19 +1,15 @@
-//
-// Created by amit on 13/01/2020.
-//
 
-#ifndef BIUADVANEDPROG1_MS_2__SEARCHABLE_H_
-#define BIUADVANEDPROG1_MS_2__SEARCHABLE_H_
+#include <vector>
+#include <string>
+#include "State.h"
+using namespace std;
 
+
+template<class T>
 class Searchable {
-
-  virtual void search() = 0;
+  virtual State<T> getInitialState() = 0;
+  virtual bool isGoalState(State<T> state) = 0;
+  virtual vector<State<T>> getAllPossibleStates(State<T> state) = 0;
+  virtual string to_string() = 0;
 };
 
-class Searcher : public Searchable {
-
-  virtual void search() = 0;
-
-};
-
-#endif //BIUADVANEDPROG1_MS_2__SEARCHABLE_H_

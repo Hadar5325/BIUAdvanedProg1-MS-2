@@ -7,12 +7,20 @@
 namespace server_side {
 class Server {
  public:
-  virtual void open(int port, ClientHandler *c) = 0;
+  virtual void open(int port, ClientHandler *c);
   virtual void stop() = 0;
   virtual void start(ClientHandler *c) = 0;
 };
 
 class MySerialServer : public Server {
+
+ public:
+  void open(int port, ClientHandler *c);
+  void stop();
+  void start(ClientHandler *c);
+
+};
+class MyParallelServer : public Server {
 
  public:
   void open(int port, ClientHandler *c);

@@ -144,14 +144,40 @@ class CacheManager {
 template<class Solution>
 class FileCacheManager : public CacheManager<string, Solution> {
  private:
-  GenericCacheManager<Solution> stringGCM;
+  map<string, string> problemStringToFileName;
  public:
-  FileCacheManager(unsigned int capacity) {
-    this->stringGCM.setCapacity(capacity);
+
+  bool isCached(string p) {
+    return this->problemStringToFileName.count(p);
   }
-  bool isCached(string p);
-  Solution getSolutionToProblem(string p);
-  void saveSolutionForProblem(string problem, Solution solution);
+  Solution getSolutionToProblem(string p) {
+    string name = problemStringToFileName[p];
+    string path(name + ".txt");
+    fstream file(path, std::ios::in | std::ios::binary);
+    if (file) {
+      Solution obj;
+      file.read((char *) &obj, sizeof(Solution)); //read from the file into the object.
+      file.close();
+      return obj;
+    } else {
+      file.close();
+      throw "an error";
+    }
+
+  }
+  void saveSolutionForProblem(string problem, Solution solution) {
+    try {
+      //TODO: convert problem to file name - to_string
+      string name;
+      this->problemStringToFileName.insert(make_pair(problem, name));
+      string path(name + ".txt");
+      fstream file(path, std::ios::out | std::ios::binary);
+      file.write((char *) &solution, sizeof(solution));
+      file.close();
+    } catch (const char *e) {
+      throw "Error saving file of solution for problem" ;
+    }
+  }
 
 };
 
