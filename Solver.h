@@ -6,6 +6,7 @@
 #include <bits/stdc++.h>
 #include <algorithm>
 #include "Searchable.h"
+#include "Searcher.h"
 using namespace std;
 
 template<class Problem, class Solution>
@@ -17,7 +18,7 @@ class Solver {
 template<class Problem, class Solution>
 class ObjectAdapter : public Solver<Problem, Solution> {
  private:
-  Searcher<Problem> searcher;
+  ISearcher<Problem> searcher;
  public:
 
   Solution solve(Problem prob);
