@@ -14,7 +14,7 @@ const vector<string> splitByChar(string wholeString, char delimeter) {
 void MyTestClientHandler::handleClient(int client_port) {
   char inputBuffer[1024] = {0};
   char outputBuffer[1024] = {0};
-
+  string solutionString;
   int vl = read(client_port, inputBuffer, 1024);
   bool stopHandling = false;
   while (vl != -1) {
@@ -25,9 +25,11 @@ void MyTestClientHandler::handleClient(int client_port) {
         break;
       }
       try {
-        outputBuffer << this->c->getSolutionToProblem(line)
+        outputBuffer = this->c->getSolutionToProblem(line)
       } catch (...) {
-        outputBuffer << this->solver.solve(line);
+        solutionString = this->solver.solve(line);
+        this->c->
+        outputBuffer = this->solver.solve(line);
       }
       send(client_port, outputBuffer, strlen(outputBuffer), 0);
     }

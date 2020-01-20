@@ -103,11 +103,10 @@ class Searcher : public ISearcher<T> {
     this->openList.push(s);
   }
 
-  vector<State<T>> backTrace(unordered_set<State<T>> closed) {
+  virtual vector<State<T>> backTrace(State<T> goal) {
     vector<State<T>> backTraceVector;
-    auto lastIt = closed.begin();
-    --lastIt;
-    State<T> *last = *lastIt;
+
+    State<T> *last = goal;
     while (last != nullptr) {
       backTraceVector.push_back(last);
       last = last->getCameFrom();
@@ -140,6 +139,7 @@ class BestFS : public Searcher<T> {
       vector<State<T>> successors = searchable.getAllPossibleStates(n);
       for (State<T> s : successors) {
         if (closed.find(s) == closed.end() && !openListContains(s)) {
+          s.setCost(s.getCost() + n.getCost());
           addToOpenList(s);
         } else if (n.getCost() < s.getCost()) {
           if (!openListContains(s))
@@ -147,6 +147,7 @@ class BestFS : public Searcher<T> {
           else {
             auto v = findAndRemove(s);
             v.setCost(n.getCost());
+            v.setCameFrom(n);
             addToOpenList(v);
           }
         }
@@ -166,6 +167,9 @@ class DFS : public Searcher<T> {
     unordered_set<State<T>> closed;
     while (this->openListSize() > 0) {
       State<T> v = this->popOpenList();
+      if (searchable.isGoalState(v)) {
+        return this->backTrace(v);
+      }
       if (closed.find(v) == closed.end()) {
         closed.insert(v);
         vector<State<T>> successors = searchable.getAllPossibleStates(v);
@@ -173,8 +177,6 @@ class DFS : public Searcher<T> {
           addToOpenList(s);
       }
     }
-
-    return this->backTrace(closed);
   }
 };
 
@@ -191,13 +193,13 @@ class BFS : public Searcher<T> {
     while (this->openListSize() > 0) {
       State<T> v = this->popOpenList();
       if (searchable.isGoalState(v)) {
-        return this->backTrace();
+        return this->backTrace(v);
       }
       vector<State<T>> successors = searchable.getAllPossibleStates(v);
       for (State<T> s : successors) {
         if (closed.find(s) == closed.end()) {
           closed.insert(s);
-          this->addToOpenList(s.getCameFrom());
+          this->addToOpenList(v);
         }
       }
     }
@@ -211,13 +213,40 @@ class AStar : public Searcher<T> {
     return "A*";
   }
   vector<State<T>> search(Searchable<T> searchable) {
+
+    State<T> initState = searchable.getInitialState();
+    double tentative_score = initState.getCost();
+    initState.setCost(initState.getCost() + searchable.h(initState));
     addToOpenList(searchable.getInitialState());
     unordered_set<State<T>> closed;
-
+    //unordered_map<State<T>,double> fMap;
     while (this->openListSize() > 0) {
+      State<T> q = this->popOpenList();
+      if (searchable.isGoalState(q)) {
+        return this->backTrace(searchable, q);
+      }
+
+      vector<State<T>> successors = searchable.getAllPossibleStates(q);
+      for (State<T> s : successors) {
+
+      }
 
     }
   }
+
+  vector<State<T>> backTrace(Searchable<T> searchable, State<T> goalState) {
+
+    vector<State<T>> backTraceVector;
+
+    State<T> *last = goalState;
+    while (last != nullptr) {
+      last->setCost(goalState.getCost() - searchable.h(goalState));
+      backTraceVector.push_back(last);
+      last = last->getCameFrom();
+    }
+
+  }
+
 };
 
 

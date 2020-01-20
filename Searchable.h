@@ -1,4 +1,4 @@
-
+#pragma once
 #include <vector>
 #include <string>
 #include "State.h"
@@ -11,5 +11,6 @@ class Searchable {
   virtual bool isGoalState(State<T> state) = 0;
   virtual vector<State<T>> getAllPossibleStates(State<T> state) = 0;
   virtual string to_string() = 0;
+  virtual double h(State<T>);
 };
 

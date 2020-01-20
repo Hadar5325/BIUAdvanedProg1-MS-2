@@ -57,6 +57,10 @@ void acceptFunc(int socket_server, sockaddr_in &address1) {
   //TODO add timeout
   //m.lock();
   //Accept the client.
+
+  struct timeval tv;
+  tv.tv_sec = 120;
+  setsockopt(socket_server, SOL_SOCKET, SO_RCVTIMEO, (const char *) &tv, sizeof tv);
   client_socket = accept(socket_server, (struct sockaddr *) &address1, (socklen_t *) &address1);
   cout << "Accepting client...." << endl;
   if (client_socket == -1) {
