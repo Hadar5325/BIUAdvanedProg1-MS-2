@@ -8,7 +8,7 @@
 template<class T>
 
 class ISearcher {
-  virtual vector<State<T>> search(Searchable<T> searchable) = 0;
+  virtual vector<State<T>> search(Searchable<T> *searchable) = 0;
   virtual int getNumberOfNodesEvaluated() = 0;
 };
 
@@ -76,7 +76,7 @@ class Searcher : public ISearcher<T> {
   Searcher() {
     evaluatedNodes = 0;
   }
-  virtual vector<State<T>> search(Searchable<T> searchable) = 0;
+  virtual vector<State<T>> search(Searchable<T> *searchable) = 0;
 
   int getNumberOfNodesEvaluated() {
     return evaluatedNodes;
@@ -125,18 +125,18 @@ class BestFS : public Searcher<T> {
 
  public:
   string getSearcherName() {
-    return "BestFS";
+    return typeid(this).name();
   }
-  vector<State<T>> search(Searchable<T> searchable) {
-    addToOpenList(searchable.getInitialState()); // inherited from Searcher
+  vector<State<T>> search(Searchable<T> *searchable) {
+    addToOpenList(searchable->getInitialState()); // inherited from Searcher
     unordered_set<State<T>> closed;
     while (this->openListSize() > 0) {
       State<T> n = this->popOpenList(); // inherited from Searcher, removes the best state
       closed.insert(n);
-      if (searchable.isGoalState(n)) {
+      if (searchable->isGoalState(n)) {
         return this->backTrace(closed);
       }
-      vector<State<T>> successors = searchable.getAllPossibleStates(n);
+      vector<State<T>> successors = searchable->getAllPossibleStates(n);
       for (State<T> s : successors) {
         if (closed.find(s) == closed.end() && !openListContains(s)) {
           s.setCost(s.getCost() + n.getCost());
@@ -160,14 +160,14 @@ template<class T>
 class DFS : public Searcher<T> {
  public:
   string getSearcherName() {
-    return "DFS";
+    return typeid(this).name();
   }
-  vector<State<T>> search(Searchable<T> searchable) {
-    addToOpenList(searchable.getInitialState()); // inherited from Searcher
+  vector<State<T>> search(Searchable<T> *searchable) {
+    addToOpenList(searchable->getInitialState()); // inherited from Searcher
     unordered_set<State<T>> closed;
     while (this->openListSize() > 0) {
       State<T> v = this->popOpenList();
-      if (searchable.isGoalState(v)) {
+      if (searchable->isGoalState(v)) {
         return this->backTrace(v);
       }
       if (closed.find(v) == closed.end()) {
@@ -184,15 +184,15 @@ template<class T>
 class BFS : public Searcher<T> {
  public:
   string getSearcherName() {
-    return "BFS";
+    return typeid(this).name();
   }
-  vector<State<T>> search(Searchable<T> searchable) {
+  vector<State<T>> search(Searchable<T> *searchable) {
     unordered_set<State<T>> closed;
-    closed.insert(searchable.getInitialState());
-    addToOpenList(searchable.getInitialState());
+    closed.insert(searchable->getInitialState());
+    addToOpenList(searchable->getInitialState());
     while (this->openListSize() > 0) {
       State<T> v = this->popOpenList();
-      if (searchable.isGoalState(v)) {
+      if (searchable->isGoalState(v)) {
         return this->backTrace(v);
       }
       vector<State<T>> successors = searchable.getAllPossibleStates(v);
@@ -210,19 +210,19 @@ template<class T>
 class AStar : public Searcher<T> {
  public:
   string getSearcherName() {
-    return "A*";
+    return typeid(this).name();
   }
-  vector<State<T>> search(Searchable<T> searchable) {
+  vector<State<T>> search(Searchable<T> *searchable) {
 
-    State<T> initState = searchable.getInitialState();
+    State<T> initState = searchable->getInitialState();
     double tentative_score = initState.getCost();
-    initState.setCost(initState.getCost() + searchable.h(initState));
-    addToOpenList(searchable.getInitialState());
+    initState.setCost(initState.getCost() + searchable->h(initState));
+    addToOpenList(searchable->getInitialState());
     unordered_set<State<T>> closed;
     //unordered_map<State<T>,double> fMap;
     while (this->openListSize() > 0) {
       State<T> q = this->popOpenList();
-      if (searchable.isGoalState(q)) {
+      if (searchable->isGoalState(q)) {
         return this->backTrace(searchable, q);
       }
 

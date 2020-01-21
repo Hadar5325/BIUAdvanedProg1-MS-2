@@ -1,21 +1,24 @@
 
+#include <tuple>
 #include "Searchable.h"
 template<class T>
 class Cell {
 
  private:
-  int col;
   int row;
+  int col;
   T value;
 
  public:
+  Cell<T>() {}
+  Cell<T>(int rowNum, int colNum, T val) : row(rowNum), col(colNum), value(val) {}
   const int i() {
     return col;
   }
   const int j() {
     return row;
   }
-  const T getValue() {
+  const T getValue() const {
     return value;
   }
 
@@ -30,6 +33,8 @@ class Matrix : public Searchable<Cell<T>> {
   Cell<T> **matrix;
   int rowsNumber;
   int columnsNumber;
+  tuple<int, int> enteringPosition;
+  tuple<int, int> exitingPosition;
  public:
   Matrix(int rows, int columns) : matrix(new Cell<T> *[columns]), rowsNumber(rows), columnsNumber(columns) {
 
@@ -37,30 +42,30 @@ class Matrix : public Searchable<Cell<T>> {
 
   State<Cell<T>> getInitialState() {
     State<Cell<T>> firstState;
-    firstState->setStateValue(this->matrix[0][0]);
+    firstState.setStateValue(this->matrix[0][0]);
 
     return firstState;
   }
-  bool isGoalState(State<T> state) {
+  bool isGoalState(State<Cell<T>> state) {
 
     State<Cell<T>> goal;
-    goal->setStateValue(this->matrix[rowsNumber - 1][columnsNumber - 1]);
+    goal.setStateValue(this->matrix[rowsNumber - 1][columnsNumber - 1]);
     return state.equal_to(goal);
   }
-  vector<State<Cell<T>>> getAllPossibleStates(State<T> state) {
+  vector<State<Cell<T>>> getAllPossibleStates(State<Cell<T>> *state) {
     vector<State<Cell<T>>> statesVector;
 
-    Cell<T> cell = (Cell<T>) state.getStateValue();
+    Cell<T> cell = (Cell<T>) state->getStateValue();
 
     if (cell.i() != rowsNumber - 1) {
-      State<T> downCell;
+      State<Cell<T>> downCell;
       downCell.setCameFrom(state);
       downCell.setStepString("Down");
       downCell.setStateValue(matrix[cell.i() + 1][cell.j()]);
       statesVector.push_back(downCell);
     }
     if (cell.j() != columnsNumber - 1) {
-      State<T> rightCell;
+      State<Cell<T>> rightCell;
       rightCell.setCameFrom(state);
       rightCell.setStepString("Right");
       rightCell.setStateValue(matrix[cell.i()][cell.j() + 1]);
@@ -85,10 +90,10 @@ class Matrix : public Searchable<Cell<T>> {
       int col = cell.j();
 
       for (int j = cell.j(); j < rowsNumber; j++)
-        disX += (double)matrix[row][j].getValue();
+        disX += (double) matrix[row][j].getValue();
 
       for (int i = cell.i(); i < rowsNumber; i++)
-        disY += (double)matrix[i][col];
+        disY += (double) matrix[i][col].getValue();
 
       return abs(disX) + abs(disY);
 
@@ -100,17 +105,18 @@ class Matrix : public Searchable<Cell<T>> {
       int col = cell.j();
 
       for (int j = cell.j(); j < rowsNumber; j++)
-        disX ++;
+        disX++;
 
       for (int i = cell.i(); i < rowsNumber; i++)
-        disY ++;
+        disY++;
 
       return abs(disX) + abs(disY);
     }
 
   }
-  void insertToMatrix(int i, int j, Cell<T> c) {
-    matrix[i][j] = c;
+  void insertToMatrix(Cell<T> c) {
+
+    matrix[c.i()][c.j()] = c;
 
   }
   const Cell<T> getCell(int i, int j) {
@@ -122,6 +128,14 @@ class Matrix : public Searchable<Cell<T>> {
   }
   const int getColumnsNumber() {
     return columnsNumber;
+  }
+
+  void setEnteringPositionRowAndCol(int row, int col) {
+    this->enteringPosition = tuple<int, int>(row, col);
+  }
+
+  void setExitingPositionRowAndCol(int row, int col) {
+    this->exitingPosition = tuple<int, int>(row, col);
   }
 };
 

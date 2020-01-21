@@ -11,10 +11,11 @@ class ClientHandler {
 
 class MyTestClientHandler : public ClientHandler {
  private:
-  Solver<Problem, Solution> *solver;
-  CacheManager<Problem, Solution> *c;
+  //TODO Handle the problem solution templates
+  Solver<string, string> *solver;
+  CacheManager<string , string> *c;
  public:
-  MyTestClientHandler(Solver<Problem, Solution> *s, CacheManager<Problem, Solution> *cm) : solver(s), c(cm) {
+  MyTestClientHandler(Solver<string, string> *s, CacheManager<string, string> *cm) : solver(s), c(cm) {
 
   };
   void handleClient(int client_port);
