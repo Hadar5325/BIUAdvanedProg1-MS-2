@@ -28,10 +28,11 @@ void createExperimentFiles(vector<Matrix<double> *> vectorOfMatrices) {
   for (auto searcher : searchers) {
     string fileName = "../" + searcher->getSearcherName() + " Results";
     fstream file(fileName, ios::out);
-
+    vector<string> averageNumberOfVerticesOfMatrices;
     for (auto matrix : vectorOfMatrices) {
       //Write a first title
-      file << "Matrix" + to_string(matrix->getRowsNumber()) + "x" + to_string(matrix->getColumnsNumber()) << endl;
+      string matrixTitle = "Matrix" + to_string(matrix->getRowsNumber()) + "x" + to_string(matrix->getColumnsNumber());
+      file << matrixTitle << endl;
       vector<int> sizesVector;
       for (int i = 0; i < 10; i++) {
         //Write a second title
@@ -58,9 +59,23 @@ void createExperimentFiles(vector<Matrix<double> *> vectorOfMatrices) {
         sizesVector.push_back(size);
       }
 
+
+      //calculate the average number of vertices for the currentn size of matrix
+      double avg = 0;
+      for (auto size : sizesVector)
+        avg += size;
+      avg = avg / sizesVector.size();
+      //add a string of result to the averageNumberOfVerticesOfMatrices string vectors.
+      string matrixAvgResult = matrixTitle + "avg: " + to_string(avg);
+      averageNumberOfVerticesOfMatrices.push_back(matrixAvgResult);
     }
 
-
+    //write the results for the current searcher for each of the matrices sizes.
+    file << "Results:" << endl;
+    file << "\n" << endl;
+    for(string s : averageNumberOfVerticesOfMatrices){
+      file << s <<endl;
+    }
 
 
     file.close();
@@ -71,9 +86,9 @@ void createExperimentFiles(vector<Matrix<double> *> vectorOfMatrices) {
 
 vector<Matrix<double> *> SearchOnMatrixExperiment::getVectorOfMatrices() {
 
-  vector<Matrix<double> *> vectorOfMetrices;
+  vector<Matrix<double> *> vectorOfMatrices;
 
-  for (unsigned int i = 15; i <= 50; i++) {
+  for (unsigned int i = 10; i <= 50; i++) {
 
     //open the file for reading.
     string fileName = "../matrices/Matrix" + to_string(i) + "x" + to_string(i) + ".txt";
@@ -108,12 +123,12 @@ vector<Matrix<double> *> SearchOnMatrixExperiment::getVectorOfMatrices() {
 
     //insert the matrix to the vector;
 
-    vectorOfMetrices.push_back(matrix);
+    vectorOfMatrices.push_back(matrix);
 
     file.close();
   }
 
-  return vectorOfMetrices;
+  return vectorOfMatrices;
 
 }
 
