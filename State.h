@@ -45,6 +45,10 @@ class State {
 
     this->stepString = step;
   }
+  string getStepString(){
+
+    return stepString;
+  }
 
 };
 

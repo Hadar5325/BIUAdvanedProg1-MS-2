@@ -15,15 +15,6 @@ int serverSocket;
 bool done = false;
 sockaddr_in address1;
 
-const vector<string> splitByChar(string wholeString, char delimeter) {
-  vector<string> tokens;
-  string token;
-  istringstream tokenStream(wholeString);
-  while (getline(tokenStream, token, delimeter)) {
-    tokens.push_back(token);
-  }
-  return tokens;
-}
 
 void Server::open(int port, ClientHandler *c) {
 
@@ -73,7 +64,7 @@ void acceptFunc(int socket_server, sockaddr_in &address1) {
 
 
 void acceptClients(ClientHandler *c) {
-  while () {
+  while (true) {
     //creating thread with accept step through acceptFunc
     thread acceptT(acceptFunc, serverSocket, std::ref(address1));
     //wait for it to stop
