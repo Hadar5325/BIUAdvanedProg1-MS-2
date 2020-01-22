@@ -10,7 +10,10 @@ class Cell {
   T value;
 
  public:
-  Cell<T>() {}
+  Cell<T>() {
+    row = 0;
+    col = 0;
+  }
   Cell<T>(int rowNum, int colNum, T val) : row(rowNum), col(colNum), value(val) {}
   const int i() {
     return col;
@@ -38,6 +41,9 @@ class Matrix : public Searchable<Cell<T>> {
  public:
   Matrix(int rows, int columns) : matrix(new Cell<T> *[columns]), rowsNumber(rows), columnsNumber(columns) {
 
+    for (unsigned i = 0; i < rows; i++)
+      for(unsigned j = 0;j < columns;j++)
+        matrix[i][j] = nullptr;
   }
 
   State<Cell<T>> getInitialState() {

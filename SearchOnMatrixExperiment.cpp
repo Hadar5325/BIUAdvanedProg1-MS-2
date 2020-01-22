@@ -108,6 +108,7 @@ vector<Matrix<double> *> SearchOnMatrixExperiment::getVectorOfMatrices() {
         double val = stod(value);
         Cell<double> cell(row, col, val);
         matrix->insertToMatrix(cell);
+        col++;
       }
 
     }
