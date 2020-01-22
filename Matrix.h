@@ -1,8 +1,10 @@
 
 #include <tuple>
 #include "Searchable.h"
+#include "StateValue.h";
+
 template<class T>
-class Cell {
+class Cell : public StateValue<T> {
 
  private:
   int row;
@@ -31,7 +33,7 @@ class Cell {
 
 };
 
-template<class T> //TODO support start and goal cells
+template<class T>
 class Matrix : public Searchable<Cell<T>> {
   Cell<T> **matrix;
   int rowsNumber;
@@ -42,20 +44,19 @@ class Matrix : public Searchable<Cell<T>> {
   Matrix(int rows, int columns) : matrix(new Cell<T> *[columns]), rowsNumber(rows), columnsNumber(columns) {
 
     for (unsigned i = 0; i < rows; i++)
-      for(unsigned j = 0;j < columns;j++)
+      for (unsigned j = 0; j < columns; j++)
         matrix[i][j] = nullptr;
   }
 
   State<Cell<T>> getInitialState() {
     State<Cell<T>> firstState;
-    firstState.setStateValue(this->matrix[0][0]);
+    firstState.setStateValue(this->matrix[get<0>(enteringPosition)][get<1>(enteringPosition)]);
 
     return firstState;
   }
   bool isGoalState(State<Cell<T>> state) {
-
     State<Cell<T>> goal;
-    goal.setStateValue(this->matrix[rowsNumber - 1][columnsNumber - 1]);
+    goal.setStateValue(this->matrix[get<0>(exitingPosition)][get<1>(exitingPosition)]);
     return state.equal_to(goal);
   }
   vector<State<Cell<T>>> getAllPossibleStates(State<Cell<T>> *state) {

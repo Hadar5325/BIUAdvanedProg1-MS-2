@@ -2,12 +2,12 @@
 #define STATE_H
 
 #include <string>
-
+#include "StateValue.h";
 using namespace std;
 template<class T>
 class State {
  private:
-  T state;
+  StateValue<T> state;
   double cost;
   State<T> *cameFrom;
   string stepString;
@@ -16,6 +16,7 @@ class State {
   State<T>() {
     cost = 0;
     cameFrom = nullptr;
+    stepString = "";
   }
 
   bool equal_to(State<T> state) {
@@ -37,7 +38,7 @@ class State {
   void setStateValue(T value) {
     this->state = value;
   }
-  const T getStateValue() {
+  const StateValue<T> getStateValue() {
     return state;
   }
 
@@ -49,6 +50,8 @@ class State {
 
     return stepString;
   }
+
+
 
 };
 

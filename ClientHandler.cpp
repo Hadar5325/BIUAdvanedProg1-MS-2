@@ -3,6 +3,8 @@
 #include <sys/socket.h>
 #include "ClientHandler.h"
 #include "Matrix.h"
+#include "Searchable.h"
+
 const vector<string> splitByChar(string wholeString, char delimeter) {
   vector<string> tokens;
   string token;
@@ -12,7 +14,7 @@ const vector<string> splitByChar(string wholeString, char delimeter) {
   }
   return tokens;
 }
-void MyTestClientHandler::handleClient(int client_port) {
+void MatrixSearchingClientHandler::handleClient(int client_port) {
   char inputBuffer[1024] = {0};
   char outputBuffer[1024] = {0};
   string solutionString;
@@ -22,6 +24,7 @@ void MyTestClientHandler::handleClient(int client_port) {
 
   }
 
+  //read from the client
   string input = "";
   string end = inputBuffer;
   while (vl != -1 && end.find("end") == string::npos) {
@@ -58,20 +61,15 @@ void MyTestClientHandler::handleClient(int client_port) {
   cellValues = splitByChar(line, ',');
   matrix->setEnteringPositionRowAndCol(stod(cellValues.at(0)), stod(cellValues.at(1)));
 
-  for (string line : lines) {
-    if (line == "end") {
-      stopHandling = true;
-      break;
-    }
-    try {
-      //outputBuffer = this->c->getSolutionToProblem(line)
-    } catch (...) {
-      //solutionString = this->solver.solve(line);
-      //this->c->
-      //outputBuffer = this->solver.solve(line);
-    }
+  try {
+    outputBuffer = this->c->getSolutionToProblem(matrix);
+  } catch (...) {
+    solutionString = this->solver.solve(line);
+    this->c->saveSolutionForProblem(matrix, solutionString);
+    outputBuffer = this->solver.solve(line);
     send(client_port, outputBuffer, strlen(outputBuffer), 0);
   }
+
   if (stopHandling)
     break;
 

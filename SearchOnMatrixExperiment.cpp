@@ -43,13 +43,14 @@ void createExperimentFiles(vector<Matrix<double> *> vectorOfMatrices) {
         //build the path from the vector of states.
         string path;
         auto size = states.size();
-        for (unsigned int i = 0; i < size - 1; i++) {
-          auto state = states.at(i);
+        unsigned int j;
+        for (j = 0; j < size - 1; j++) {
+          auto state = states.at(j);
           path += state.getStepString() + " (" + to_string(state.getStateValue().getValue()) + ") ,";
         }
 
         //on the last one, dont add a comma after it.
-        auto state = states.at(i);
+        auto state = states.at(j);
         path += state.getStepString() + " (" + to_string(state.getStateValue().getValue()) + ")";
 
         file << path << endl;
@@ -73,10 +74,9 @@ void createExperimentFiles(vector<Matrix<double> *> vectorOfMatrices) {
     //write the results for the current searcher for each of the matrices sizes.
     file << "Results:" << endl;
     file << "\n" << endl;
-    for(string s : averageNumberOfVerticesOfMatrices){
-      file << s <<endl;
+    for (string s : averageNumberOfVerticesOfMatrices) {
+      file << s << endl;
     }
-
 
     file.close();
 
@@ -88,7 +88,7 @@ vector<Matrix<double> *> SearchOnMatrixExperiment::getVectorOfMatrices() {
 
   vector<Matrix<double> *> vectorOfMatrices;
 
-  for (unsigned int i = 10; i <= 50; i++) {
+  for (unsigned int i = 10; i <= 50; i += 4) {
 
     //open the file for reading.
     string fileName = "../matrices/Matrix" + to_string(i) + "x" + to_string(i) + ".txt";
