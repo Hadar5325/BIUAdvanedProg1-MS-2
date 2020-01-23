@@ -5,7 +5,8 @@ set(CMAKE_CXX_STANDARD 14)
 
 add_executable(BIUAdvanedProg1-MS-2 Server.cpp Server.h main.cpp CacheManager.cpp CacheManager.h Solver.cpp Solver.h
         ClientHandler.h ClientHandler.cpp Searchable.cpp Searchable.h
-        Matrix.cpp Matrix.h StringBuilder.cpp StringBuilder.h State.cpp State.h Searcher.cpp Searcher.h
+        Matrix.cpp Matrix.h StringBuilder.cpp State.h State.cpp StringBuilder.h StateValueContainer.cpp StateValueContainer.h
+        Searcher.cpp Searcher.h
         SearchOnMatrixExperiment.cpp SearchOnMatrixExperiment.h)
 find_package(Threads REQUIRED)
 

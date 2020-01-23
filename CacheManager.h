@@ -5,29 +5,44 @@
 #include <functional>
 #include <list>
 #include <fstream>
-
+#include "Searchable.h"
+#include "Matrix.h"
 using namespace std;
 
 template<class Problem, class Solution>
 class CacheManager {
  public:
-  virtual bool isCached(Problem p) = 0;
-  virtual Solution getSolutionToProblem(Problem p) = 0;
-  virtual void saveSolutionForProblem(Problem p, Solution s) = 0;
+  virtual bool isCached(Problem *p) = 0;
+  virtual Solution getSolutionToProblem(Problem *p) = 0;
+  virtual void saveSolutionForProblem(Problem *p, Solution s) = 0;
 };
 
+//template<class T>
+//class SearchableProblemFileCacheManager : public CacheManager<Searchable<T>, string> {
+// protected:
+//  map<string, string> problemStringToFileName;
+// public:
+//
+//  virtual bool isCached(Searchable<T> *p) = 0;
+//  virtual string getSolutionToProblem(Searchable<T> *p) = 0;
+//  virtual void saveSolutionForProblem(Searchable<T> *p, string s) = 0;
+//};
+
 template<class T>
-class SearchablesFileCacheManager : public CacheManager<Searchable<T>, string> {
+class MatrixProblemFileCacheManager : public CacheManager<Matrix<T>, string> {
  private:
   map<string, string> problemStringToFileName;
+
  public:
 
-  bool isCached(Searchable<T> p) {
-    return this->problemStringToFileName.count(p);
+  bool isCached(Matrix<T> *p) {
+    string problemString = p->to_string();
+    return this->problemStringToFileName.count(problemString);
   }
-  string getSolutionToProblem(Searchable<T> p) {
-    string str = p.to_string();
-    string name = problemStringToFileName[str];
+
+  string getSolutionToProblem(Matrix<T> *p) {
+    string str = p->to_string();
+    string name = this->problemStringToFileName[str];
     string path(name + ".txt");
     fstream file(path, std::ios::in | std::ios::binary);
     if (file) {
@@ -39,13 +54,13 @@ class SearchablesFileCacheManager : public CacheManager<Searchable<T>, string> {
       file.close();
       throw "an error";
     }
-
   }
-  void saveSolutionForProblem(Searchable<T> problem, string solution) {
+
+  void saveSolutionForProblem(Matrix<T> *problem, string solution) {
     try {
       //create a pair of a problem string and a name with hasher of strings and put the pair in the map.
       hash<string> hasher;
-      string prob = problem.to_string();
+      string prob = problem->to_string();
       string name = to_string(hasher(prob));
       this->problemStringToFileName.insert(make_pair(prob, name));
 

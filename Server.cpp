@@ -82,8 +82,6 @@ void MySerialServer::stop() {
 
 void boot::Main::main(string port) {
 
-  //unsigned int capacity = 5;
-
 //  CacheManager<string, string> *cm = new FileCacheManager<string>();
 //  //Solver<string, string> *solver = new StringReverser();
 //  Solver<string, string> *solver = new StringReverser();
@@ -93,9 +91,8 @@ void boot::Main::main(string port) {
 //  server->open(stoi(port), ch);
 
 
-  CacheManager<Searchable<double>, string> *cm = new SearchablesFileCacheManager<Searchable<double>>();
-  //Solver<string, string> *solver = new StringReverser();
-  Solver<Matrix<double>, string> *solver = new MatrixSearcherObjectAdapter<double>();
+  CacheManager<Matrix<double>, string> *cm = new MatrixProblemFileCacheManager<double>();
+  Solver<Matrix<double>, string> *solver = new MatrixProblemSolverOA<double>();
   ClientHandler *ch = new MatrixSearchingClientHandler(solver, cm);
 
   Server *server = new MyParallelServer();

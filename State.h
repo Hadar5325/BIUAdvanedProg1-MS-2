@@ -2,12 +2,13 @@
 #define STATE_H
 
 #include <string>
-#include "StateValue.h";
+#include "StateValueContainer.h"
 using namespace std;
 template<class T>
 class State {
  private:
-  StateValue<T> state;
+  StateValueContainer<T> *state;
+  double selfCost;
   double cost;
   State<T> *cameFrom;
   string stepString;
@@ -19,8 +20,8 @@ class State {
     stepString = "";
   }
 
-  bool equal_to(State<T> state) {
-    return this->state.equal_to(state.state);
+  bool equal_to(State<T> *state) {
+    return this->state->equal_to(state->state);
   }
   void setCameFrom(State<T> *u) {
     this->cameFrom = u;
@@ -28,30 +29,49 @@ class State {
   State<T> *getCameFrom() {
     return cameFrom;
   }
+  void setSelfCost(double sCost) {
+    this->selfCost = sCost;
+  }
+  double getSelfCost() {
+    return this->selfCost;
+  }
+
   void setCost(double stateCost) {
-    this->cost = stateCost;//== nullptr ? stateCost : stateCost + cameFrom->cost;
+    this->cost = stateCost;
   }
 
   double getCost() {
     return cost;
   }
-  void setStateValue(T value) {
+  void setStateValue(StateValueContainer<T> *value) {
     this->state = value;
   }
-  const StateValue<T> getStateValue() {
+  StateValueContainer<T> *getStateValue() {
     return state;
   }
 
-  void setStepString(string step){
+  void setStepString(string step) {
 
     this->stepString = step;
   }
-  string getStepString(){
+  string getStepString() {
 
-    return stepString;
+    return this->stepString;
   }
 
+  string toString() {
+    string s = to_string(cost);
+    if (std::is_same<T, float>::value
+        || std::is_same<T, int>::value
+        || std::is_same<T, double>::value)
+      s = to_string((int) cost);
+    return stepString + " (" + s + ")";
 
+  }
+
+  string identifier() {
+    return this->state->identifier();
+  }
 
 };
 

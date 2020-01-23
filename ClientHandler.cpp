@@ -16,7 +16,7 @@ const vector<string> splitByChar(string wholeString, char delimeter) {
 }
 void MatrixSearchingClientHandler::handleClient(int client_port) {
   char inputBuffer[1024] = {0};
-  char outputBuffer[1024] = {0};
+  const char *outputBuffer = "";
   string solutionString;
   int vl = read(client_port, inputBuffer, 1024);
   //bool stopHandling = false;
@@ -46,7 +46,7 @@ void MatrixSearchingClientHandler::handleClient(int client_port) {
     vector<string> cellValues = splitByChar(line, ',');
     for (string value : cellValues) {
       double val = stod(value);
-      Cell<double> cell(row, col, val);
+      Cell<double> *cell = new Cell<double>(row, col, val);
       matrix->insertToMatrix(cell);
       col++;
     }
@@ -62,16 +62,13 @@ void MatrixSearchingClientHandler::handleClient(int client_port) {
   matrix->setEnteringPositionRowAndCol(stod(cellValues.at(0)), stod(cellValues.at(1)));
 
   try {
-    outputBuffer = this->c->getSolutionToProblem(matrix);
+    outputBuffer = this->c->getSolutionToProblem(matrix).c_str();
   } catch (...) {
-    solutionString = this->solver.solve(line);
+    solutionString = this->solver->solve(matrix);
     this->c->saveSolutionForProblem(matrix, solutionString);
-    outputBuffer = this->solver.solve(line);
+    outputBuffer = solutionString.c_str();
     send(client_port, outputBuffer, strlen(outputBuffer), 0);
   }
-
-  if (stopHandling)
-    break;
 
 }
 
