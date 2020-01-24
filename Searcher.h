@@ -2,75 +2,10 @@
 #include <algorithm>
 #include <list>
 #include <bits/stdc++.h>
-#include "queue"
+#include <queue>
 #include "Searchable.h"
+#include "MyPriorityQueue.h"
 
-template<class T>
-struct StateCostCompare {
-  int operator()(State<T> *ls, State<T> *rs) {
-    return ls->getCost() > rs->getCost();
-  }
-};
-
-
-//Taken from https://stackoverflow.com/questions/16749723/how-i-can-find-value-in-priority-queue.
-
-template<
-    class T,
-    class Container = std::vector<State<T> *>
->
-class MyPriorityQueue : public std::priority_queue<T, Container, StateCostCompare<T>> {
- public:
-  typedef typename
-  std::priority_queue<
-      T,
-      Container,
-      StateCostCompare<T>>;
-
-  bool find(State<T> *val) {
-    auto first = this->c.cbegin();
-    auto last = this->c.cend();
-    while (first != last) {
-      auto f = *first;
-      if (val->equal_to(f))
-        return true;
-      ++first;
-    }
-    return false;
-  }
-
-  State<T> *findAndRemove(State<T> *val) {
-    auto first = this->c.cbegin();
-    auto last = this->c.cend();
-    while (first != last) {
-      auto f = *first;
-      if (val->equal_to(f)) {
-        this->c.erase(first);
-        return f;
-      }
-      ++first;
-    }
-    return nullptr;
-  }
-
-  int size() {
-    return this->c.size();
-  }
-
-  State<T> *top() {
-    auto it = this->c.begin();
-    State<T> *s = *it;
-    return s;
-  }
-  void pop() {
-    auto it = this->c.begin();
-    this->c.erase(it);
-  }
-  void clear() {
-    this->c.clear();
-  }
-
-};
 
 template<class T>
 class ISearcher {
@@ -87,7 +22,7 @@ class Searcher : public ISearcher<T> {
   Searcher() {
     evaluatedNodes = 0;
   }
-  virtual vector<State<T> *> search(Searchable<T> *searchable) = 0;
+  virtual vector<State<T> *> search(Searchable<T> *searchable) {};
 
   int getNumberOfNodesEvaluated() {
     return evaluatedNodes;
@@ -103,14 +38,14 @@ class Searcher : public ISearcher<T> {
   virtual string getSearcherName() {};
 
  protected :
-  State<T> *popOpenList() {
+  virtual State<T> *popOpenList() {
     evaluatedNodes++;
     State<T> *s = openList.top();
     openList.pop();
     return s;
   }
 
-  void addToOpenList(State<T> *s) {
+  virtual void addToOpenList(State<T> *s) {
     this->openList.push(s);
   }
 
@@ -126,10 +61,11 @@ class Searcher : public ISearcher<T> {
         last = nullptr;
     }
     this->openList.clear();
+    this->evaluatedNodes = 0;
     return backTraceVector;
   }
 
-  State<T> *findAndRemove(State<T> *state) {
+  virtual State<T> *findAndRemove(State<T> *state) {
     return this->openList.findAndRemove(state);
   }
 
@@ -281,44 +217,82 @@ class BFS : public Searcher<T> {
 
 template<class T>
 class AStar : public Searcher<T> {
+ private:
+
+  FScorePriorityQueue<T, vector<State<T> *>> aStarPQ;
+  int evaluatedNodes;
+
  public:
   string getSearcherName() {
     //return typeid(this).name();
     return "AStar";
   }
-  vector<State<T> *> search(Searchable<T> *searchable) {
 
+  int openListSize() {
+    return aStarPQ.size();
+  }
+
+  bool openListContains(State<T> *state) {
+    return aStarPQ.find(state);
+  }
+
+  vector<State<T> *> search(Searchable<T> *searchable) {
     State<T> *initState = searchable->getInitialState();
-    double tentative_score = initState->getCost();
-    initState->setCost(initState->getCost() + searchable->h(initState));
-    this->addToOpenList(searchable->getInitialState());
+    initState->setFCost(searchable->heuristicsFunction(initState));
+    this->addToOpenList(initState);
     unordered_set<State<T> *, StatesHasher<T>, EqualFn<T>> closed;
-    //unordered_map<State<T>,double> fMap;
     while (this->openListSize() > 0) {
       State<T> *q = this->popOpenList();
       if (searchable->isGoalState(q)) {
-        return this->backTrace(searchable, q);
+        this->aStarPQ.clear();
+        return this->backTrace(q);
       }
-
+      closed.insert(q);
       vector<State<T> *> successors = searchable->getAllPossibleStates(q);
       for (State<T> *s : successors) {
-
+        for (State<T> *s : successors) {
+          bool inClosed = closed.find(s) != closed.end();
+          bool inOpenList = this->openListContains(s);
+          if (!inClosed && !inOpenList) {
+            this->addToOpenList(s);
+          } else {
+            double tentative_score = q->getCost() + s->getSelfCost();
+            if (!this->openListContains(s)) {
+              s->setCameFrom(q);
+              s->setStepString(s->getStepString());
+              s->setCost(tentative_score);
+              s->setFCost(s->getCost() + searchable->heuristicsFunction(s));
+              this->addToOpenList(s);
+            } else {
+              auto v = this->findAndRemove(s);
+              if (tentative_score < v->getCost()) {
+                v->setCameFrom(q);
+                v->setStepString(s->getStepString());
+                v->setCost(tentative_score);
+                v->setFCost(v->getCost() + searchable->heuristicsFunction(v));
+              }
+              this->addToOpenList(v);
+            }
+          }
+        }
       }
-
     }
   }
 
-  vector<State<T> *> backTrace(Searchable<T> *searchable, State<T> *goalState) {
+ protected :
+  State<T> *popOpenList() {
+    evaluatedNodes++;
+    State<T> *s = aStarPQ.top();
+    aStarPQ.pop();
+    return s;
+  }
 
-    vector<State<T> *> backTraceVector;
+  void addToOpenList(State<T> *s) {
+    aStarPQ.push(s);
+  }
 
-    State<T> *last = goalState;
-    while (last != nullptr) {
-      last->setCost(goalState->getCost() - searchable->h(goalState));
-      backTraceVector.push_back(last);
-      last = last->getCameFrom();
-    }
-
+  State<T> *findAndRemove(State<T> *state) {
+    return aStarPQ.findAndRemove(state);
   }
 
 };

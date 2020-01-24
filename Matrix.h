@@ -11,10 +11,11 @@ using namespace std;
 template<class T>
 class Matrix : public Searchable<T> {
   vector<vector<Cell<T> *>> matrix;
-  int rowsNumber;
-  int columnsNumber;
   tuple<int, int> enteringPosition;
   tuple<int, int> exitingPosition;
+  string matrixString;
+  int rowsNumber;
+  int columnsNumber;
  public:
   Matrix(int rows, int columns) : matrix(rows), rowsNumber(rows), columnsNumber(columns) {
     for (int i = 0; i < rows; i++)
@@ -26,7 +27,6 @@ class Matrix : public Searchable<T> {
     auto cell = this->matrix[get<0>(enteringPosition)][get<1>(enteringPosition)];
     firstState->setStateValue(cell);
     T val = firstState->getStateValue()->getValue();
-    //TODO support -1 in the entering position
     firstState->setCost(val);
     firstState->setSelfCost(val);
     return firstState;
@@ -75,43 +75,29 @@ class Matrix : public Searchable<T> {
     return statesVector;
   }
   string to_string() {
-
+    return matrixString;
   }
 
-  double h(State<T> *s) {
+  string setString(string matrixS) {
+    matrixString = matrixS;
+  }
+
+  double heuristicsFunction(State<T> *s) {
 
     Cell<T> *cell = (Cell<T> *) s->getStateValue();
+    double val = (double) cell->getValue();
+    double disX = 0;
+    double disY = 0;
+    int row = cell->i();
+    int col = cell->j();
 
-    try {
+    for (int j = cell->j(); j < columnsNumber; j++)
+      disX++;
 
-      double disX = 0;
-      double disY = 0;
-      int row = cell->i();
-      int col = cell->j();
+    for (int i = cell->i(); i < rowsNumber; i++)
+      disY++;
 
-      for (int j = cell->j(); j < rowsNumber; j++)
-        disX += (double) matrix[row][j]->getValue();
-
-      for (int i = cell->i(); i < rowsNumber; i++)
-        disY += (double) matrix[i][col]->getValue();
-
-      return abs(disX) + abs(disY);
-
-    } catch (...) {
-      double val = (double) cell->getValue();
-      double disX = 0;
-      double disY = 0;
-      int row = cell->i();
-      int col = cell->j();
-
-      for (int j = cell->j(); j < rowsNumber; j++)
-        disX++;
-
-      for (int i = cell->i(); i < rowsNumber; i++)
-        disY++;
-
-      return abs(disX) + abs(disY);
-    }
+    return abs(disX) + abs(disY);
 
   }
   void insertToMatrix(Cell<T> *c) {
