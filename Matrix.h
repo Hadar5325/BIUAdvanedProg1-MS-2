@@ -26,7 +26,8 @@ class Matrix : public Searchable<T> {
     auto cell = this->matrix[get<0>(enteringPosition)][get<1>(enteringPosition)];
     firstState->setStateValue(cell);
     T val = firstState->getStateValue()->getValue();
-    firstState->setCost(val == -1 ? 1000000 : val);
+    //TODO support -1 in the entering position
+    firstState->setCost(val);
     firstState->setSelfCost(val);
     return firstState;
   }
@@ -46,9 +47,14 @@ class Matrix : public Searchable<T> {
       downCell->setStepString("Down");
       downCell->setStateValue(matrix[cell->i() + 1][cell->j()]);
       T val = downCell->getStateValue()->getValue();
-      downCell->setCost(val == -1 ? 1000000 : (val + state->getCost()));
-      downCell->setSelfCost(val);
-      statesVector.push_back(downCell);
+      if (val != -1) {
+        downCell->setCost(val + state->getCost());
+        downCell->setSelfCost(val);
+        statesVector.push_back(downCell);
+      } else {
+        delete downCell;
+      }
+
     }
     if (cell->j() != columnsNumber - 1) {
       State<T> *rightCell = new State<T>();
@@ -56,9 +62,14 @@ class Matrix : public Searchable<T> {
       rightCell->setStepString("Right");
       rightCell->setStateValue(matrix[cell->i()][cell->j() + 1]);
       T val = rightCell->getStateValue()->getValue();
-      rightCell->setCost(val == -1 ? 1000000 : (val + state->getCost()));
-      rightCell->setSelfCost(val);
-      statesVector.push_back(rightCell);
+      if (val != -1) {
+        rightCell->setCost(val + state->getCost());
+        rightCell->setSelfCost(val);
+        statesVector.push_back(rightCell);
+      } else {
+        delete rightCell;
+      }
+
     }
 
     return statesVector;

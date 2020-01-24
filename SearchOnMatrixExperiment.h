@@ -9,7 +9,7 @@
 
 class SearchOnMatrixExperiment {
  private:
-  vector<Matrix<double> *> getVectorOfMatrices();
+  vector<Matrix<double> *> createVectorOfMatrices();
   void createExperimentFiles(vector<Matrix<double> *> vectorOfMetrices);
  public:
   void experiment();

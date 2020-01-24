@@ -21,8 +21,8 @@ void SearchOnMatrixExperiment::createExperimentFiles(vector<Matrix<double> *> ve
 
   vector<Searcher<double> *> searchers;
   searchers.push_back(new BestFS<double>());
-  searchers.push_back(new BFS<double>());
   searchers.push_back(new DFS<double>());
+  searchers.push_back(new BFS<double>());
   searchers.push_back(new AStar<double>());
   //for each searcher , run each (10 matrices) matrix 10 times;
   for (auto searcher : searchers) {
@@ -39,8 +39,6 @@ void SearchOnMatrixExperiment::createExperimentFiles(vector<Matrix<double> *> ve
         //Write a second title
         file << "Time #" + to_string(i) << endl;
 
-        if( i== 6 && matrix->getRowsNumber() == 18)
-          int a = 0;
         auto states = searcher->search(matrix);
 
         //build the path from the vector of states.
@@ -68,13 +66,13 @@ void SearchOnMatrixExperiment::createExperimentFiles(vector<Matrix<double> *> ve
       }
 
 
-      //calculate the average number of vertices for the currentn size of matrix
+      //calculate the average number of vertices for the current size of matrix
       double avg = 0;
       for (auto size : sizesVector)
         avg += size;
       avg = avg / sizesVector.size();
       //add a string of result to the averageNumberOfVerticesOfMatrices string vectors.
-      string matrixAvgResult = matrixTitle + "avg: " + to_string(avg);
+      string matrixAvgResult = matrixTitle + " avg: " + to_string((int)avg);
       averageNumberOfVerticesOfMatrices.push_back(matrixAvgResult);
     }
 
@@ -91,7 +89,7 @@ void SearchOnMatrixExperiment::createExperimentFiles(vector<Matrix<double> *> ve
 
 }
 
-vector<Matrix<double> *> SearchOnMatrixExperiment::getVectorOfMatrices() {
+vector<Matrix<double> *> SearchOnMatrixExperiment::createVectorOfMatrices() {
 
   vector<Matrix<double> *> vectorOfMatrices;
 
@@ -143,6 +141,6 @@ vector<Matrix<double> *> SearchOnMatrixExperiment::getVectorOfMatrices() {
 
 void SearchOnMatrixExperiment::experiment() {
 
-  this->createExperimentFiles(getVectorOfMatrices());
+  this->createExperimentFiles(createVectorOfMatrices());
 
 }

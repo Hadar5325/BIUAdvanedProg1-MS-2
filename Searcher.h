@@ -159,39 +159,57 @@ class BestFS : public Searcher<T> {
     return "BestFS";
   }
   vector<State<T> *> search(Searchable<T> *searchable) {
+//    this->addToOpenList(searchable->getInitialState()); // inherited from Searcher
+//    unordered_set<State<T> *, StatesHasher<T>, EqualFn<T>> closed;
+//    while (this->openListSize() > 0) {
+//      State<T> *n = this->popOpenList(); // inherited from Searcher, removes the best state
+//      if (searchable->isGoalState(n)) {
+//        auto size = closed.size();
+//        State<T> *last = nullptr;
+//        for (auto c : closed) {
+//          last = c;
+//        }
+//        return this->backTrace(last);
+//      }
+//      vector<State<T> *> successors = searchable->getAllPossibleStates(n);
+//      for (State<T> *s : successors) {
+//        bool inClosed = closed.find(s) != closed.end();
+//        bool inOpenList = this->openListContains(s);
+//        if (!inClosed) {
+//          closed.insert(s);
+//          this->addToOpenList(s);
+//        }
+//      }
+//      closed.insert(n);
+//    }
+//  }
+
     this->addToOpenList(searchable->getInitialState()); // inherited from Searcher
     unordered_set<State<T> *, StatesHasher<T>, EqualFn<T>> closed;
     while (this->openListSize() > 0) {
       State<T> *n = this->popOpenList(); // inherited from Searcher, removes the best state
       closed.insert(n);
       if (searchable->isGoalState(n)) {
-        auto size = closed.size();
-        State<T> *last = nullptr;
-        for (auto c : closed) {
-          last = c;
-        }
-        return this->backTrace(last);
+        return this->backTrace(n);
       }
       vector<State<T> *> successors = searchable->getAllPossibleStates(n);
       for (State<T> *s : successors) {
         bool inClosed = closed.find(s) != closed.end();
         bool inOpenList = this->openListContains(s);
-        double nCost = n->getCost();
-        double sCost = s->getCost();
         if (!inClosed && !inOpenList) {
           this->addToOpenList(s);
         } else {
-          if (n->getCost() < s->getCost()) {
-            if (!this->openListContains(s)) {
-              s->setCost(n->getCost());
-              this->addToOpenList(s);
-            } else {
-              auto v = this->findAndRemove(s);
-              v->setCost(n->getCost());
+          if (!this->openListContains(s)) {
+            //s->setCost(n->getCost());
+            this->addToOpenList(s);
+          } else {
+            auto v = this->findAndRemove(s);
+            if (s->getCost() < v->getCost()) {
+              v->setCost(s->getCost());
               v->setCameFrom(n);
               v->setStepString(s->getStepString());
-              this->addToOpenList(v);
             }
+            this->addToOpenList(v);
           }
         }
       }
@@ -207,10 +225,14 @@ class DFS : public Searcher<T> {
     return "DFS";
   }
   vector<State<T> *> search(Searchable<T> *searchable) {
-    this->addToOpenList(searchable->getInitialState()); // inherited from Searcher
+
     unordered_set<State<T> *, StatesHasher<T>, EqualFn<T>> closed;
-    while (this->openListSize() > 0) {
-      State<T> *v = this->popOpenList();
+    auto initState = searchable->getInitialState();
+    stack<State<T> *> dfsStack;
+    dfsStack.push(initState);
+    while (!dfsStack.empty()) {
+      State<T> *v = dfsStack.top();
+      dfsStack.pop();
       if (searchable->isGoalState(v)) {
         return this->backTrace(v);
       }
@@ -218,7 +240,7 @@ class DFS : public Searcher<T> {
         closed.insert(v);
         vector<State<T> *> successors = searchable->getAllPossibleStates(v);
         for (State<T> *s : successors)
-          this->addToOpenList(s);
+          dfsStack.push(s);
       }
     }
   }
@@ -231,12 +253,18 @@ class BFS : public Searcher<T> {
     //return typeid(this).name();
     return "BFS";
   }
+  //taken from https://www.geeksforgeeks.org/breadth-first-search-or-bfs-for-a-graph/
+
   vector<State<T> *> search(Searchable<T> *searchable) {
     unordered_set<State<T> *, StatesHasher<T>, EqualFn<T>> closed;
-    closed.insert(searchable->getInitialState());
-    this->addToOpenList(searchable->getInitialState());
-    while (this->openListSize() > 0) {
-      State<T> *v = this->popOpenList();
+    auto initState = searchable->getInitialState();
+    closed.insert(initState);
+    list<State<T> *> bfsQueue;
+    bfsQueue.push_back(initState);
+    //this->addToOpenList(searchable->getInitialState());
+    while (!bfsQueue.empty()) {
+      State<T> *v = bfsQueue.front();
+      bfsQueue.pop_front();
       if (searchable->isGoalState(v)) {
         return this->backTrace(v);
       }
@@ -244,8 +272,7 @@ class BFS : public Searcher<T> {
       for (State<T> *s : successors) {
         if (closed.find(s) == closed.end()) {
           closed.insert(s);
-          s->setCameFrom(v);
-          this->addToOpenList(s);
+          bfsQueue.push_back(s);
         }
       }
     }
