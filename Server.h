@@ -23,9 +23,9 @@ class MySerialServer : public Server {
 class MyParallelServer : public Server {
 
  public:
-  void open(int port, ClientHandler *c);
-  void stop();
-  void start(ClientHandler *c);
+  void open(int port, ClientHandler *c){};
+  void stop(){};
+  void start(ClientHandler *c){};
 
 };
 

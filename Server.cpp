@@ -7,6 +7,7 @@
 #include <mutex>
 #include <unistd.h>
 #include "Server.h"
+#include "Matrix.h"
 using namespace server_side;
 
 mutex m;
@@ -14,7 +15,6 @@ int client_socket;
 int serverSocket;
 bool done = false;
 sockaddr_in address1;
-
 
 void Server::open(int port, ClientHandler *c) {
 
@@ -40,7 +40,7 @@ void Server::open(int port, ClientHandler *c) {
 
 }
 void MySerialServer::open(int port, ClientHandler *c) {
-  Server::open(port,c);
+  Server::open(port, c);
   start(c);
 }
 
@@ -62,7 +62,6 @@ void acceptFunc(int socket_server, sockaddr_in &address1) {
   //m.unlock();
 }
 
-
 void acceptClients(ClientHandler *c) {
   while (true) {
     //creating thread with accept step through acceptFunc
@@ -83,12 +82,20 @@ void MySerialServer::stop() {
 
 void boot::Main::main(string port) {
 
-  //unsigned int capacity = 5;
-  CacheManager<string, string> *cm = new FileCacheManager<string>();
-  Solver<string, string> *solver = new StringReverser();
-  ClientHandler *ch = new MyTestClientHandler(solver, cm);
+//  CacheManager<string, string> *cm = new FileCacheManager<string>();
+//  //Solver<string, string> *solver = new StringReverser();
+//  Solver<string, string> *solver = new StringReverser();
+//  ClientHandler *ch = new MyTestClientHandler(solver, cm);
+//
+//  Server *server = new MySerialServer();
+//  server->open(stoi(port), ch);
 
-  Server *server = new MySerialServer();
+
+  CacheManager<Matrix<double>, string> *cm = new MatrixProblemFileCacheManager<double>();
+  Solver<Matrix<double>, string> *solver = new MatrixProblemSolverOA<double>();
+  ClientHandler *ch = new MatrixSearchingClientHandler(solver, cm);
+
+  Server *server = new MyParallelServer();
   server->open(stoi(port), ch);
 }
 

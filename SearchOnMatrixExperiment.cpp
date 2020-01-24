@@ -17,21 +17,23 @@ static const vector<string> splitByChar(string wholeString, char delimeter) {
   return tokens;
 }
 
-void createExperimentFiles(vector<Matrix<double> *> vectorOfMatrices) {
+void SearchOnMatrixExperiment::createExperimentFiles(vector<Matrix<double> *> vectorOfMatrices) {
 
-  vector<Searcher<Cell<double>> *> searchers;
-  searchers.push_back(new BestFS<Cell<double>>());
-  searchers.push_back(new BFS<Cell<double>>());
-  searchers.push_back(new DFS<Cell<double>>());
-  searchers.push_back(new AStar<Cell<double>>());
-  //for each searcher ,
+  vector<Searcher<double> *> searchers;
+  searchers.push_back(new BestFS<double>());
+  searchers.push_back(new DFS<double>());
+  searchers.push_back(new BFS<double>());
+  searchers.push_back(new AStar<double>());
+  //for each searcher , run each (10 matrices) matrix 10 times;
   for (auto searcher : searchers) {
-    string fileName = "../" + searcher->getSearcherName() + " Results";
+    //open a file
+    string fileName = searcher->getSearcherName() + " Results.txt";
     fstream file(fileName, ios::out);
-
+    vector<string> averageNumberOfVerticesOfMatrices;
     for (auto matrix : vectorOfMatrices) {
       //Write a first title
-      file << "Matrix" + to_string(matrix->getRowsNumber()) + "x" + to_string(matrix->getColumnsNumber()) << endl;
+      string matrixTitle = "Matrix" + to_string(matrix->getRowsNumber()) + "x" + to_string(matrix->getColumnsNumber());
+      file << matrixTitle << endl;
       vector<int> sizesVector;
       for (int i = 0; i < 10; i++) {
         //Write a second title
@@ -42,26 +44,44 @@ void createExperimentFiles(vector<Matrix<double> *> vectorOfMatrices) {
         //build the path from the vector of states.
         string path;
         auto size = states.size();
-        for (unsigned int i = 0; i < size - 1; i++) {
-          auto state = states.at(i);
-          path += state.getStepString() + " (" + to_string(state.getStateValue().getValue()) + ") ,";
+        unsigned int j = size - 1;
+        State<double> *state = states.at(j);
+        path += state->toString();
+
+        for (j = size - 2; j >= 1; --j) {
+          state = states.at(j);
+          path += ", " + state->toString();
         }
 
-        //on the last one, dont add a comma after it.
-        auto state = states.at(i);
-        path += state.getStepString() + " (" + to_string(state.getStateValue().getValue()) + ")";
+        state = states.at(j);
+        path += ", " + state->toString();
 
         file << path << endl;
 
         file << "Number of vertices : " << size << endl;
-        file << "Total cost" << state.getCost() << endl;
+        file << "Total cost " << states.at(0)->getCost() << endl;
+
+        file << "\n" << endl;
         sizesVector.push_back(size);
       }
 
+
+      //calculate the average number of vertices for the current size of matrix
+      double avg = 0;
+      for (auto size : sizesVector)
+        avg += size;
+      avg = avg / sizesVector.size();
+      //add a string of result to the averageNumberOfVerticesOfMatrices string vectors.
+      string matrixAvgResult = matrixTitle + " avg: " + to_string((int)avg);
+      averageNumberOfVerticesOfMatrices.push_back(matrixAvgResult);
     }
 
-
-
+    //write the results for the current searcher for each of the matrices sizes.
+    file << "Results:" << endl;
+    file << "\n" << endl;
+    for (string s : averageNumberOfVerticesOfMatrices) {
+      file << s << endl;
+    }
 
     file.close();
 
@@ -69,11 +89,11 @@ void createExperimentFiles(vector<Matrix<double> *> vectorOfMatrices) {
 
 }
 
-vector<Matrix<double> *> SearchOnMatrixExperiment::getVectorOfMatrices() {
+vector<Matrix<double> *> SearchOnMatrixExperiment::createVectorOfMatrices() {
 
-  vector<Matrix<double> *> vectorOfMetrices;
+  vector<Matrix<double> *> vectorOfMatrices;
 
-  for (unsigned int i = 15; i <= 50; i++) {
+  for (unsigned int i = 10; i <= 50; i += 4) {
 
     //open the file for reading.
     string fileName = "../matrices/Matrix" + to_string(i) + "x" + to_string(i) + ".txt";
@@ -91,8 +111,10 @@ vector<Matrix<double> *> SearchOnMatrixExperiment::getVectorOfMatrices() {
       unsigned int col = 0;
       for (string value : cellValues) {
         double val = stod(value);
-        Cell<double> cell(row, col, val);
+        Cell<double> *cell = new Cell<double>(row, col);
+        cell->setValue(val);
         matrix->insertToMatrix(cell);
+        col++;
       }
 
     }
@@ -104,21 +126,21 @@ vector<Matrix<double> *> SearchOnMatrixExperiment::getVectorOfMatrices() {
 
     getline(file, line);
     cellValues = splitByChar(line, ',');
-    matrix->setEnteringPositionRowAndCol(stod(cellValues.at(0)), stod(cellValues.at(1)));
+    matrix->setExitingPositionRowAndCol(stod(cellValues.at(0)), stod(cellValues.at(1)));
 
     //insert the matrix to the vector;
 
-    vectorOfMetrices.push_back(matrix);
+    vectorOfMatrices.push_back(matrix);
 
     file.close();
   }
 
-  return vectorOfMetrices;
+  return vectorOfMatrices;
 
 }
 
 void SearchOnMatrixExperiment::experiment() {
 
-  createExperimentFiles(getVectorOfMatrices());
+  this->createExperimentFiles(createVectorOfMatrices());
 
 }

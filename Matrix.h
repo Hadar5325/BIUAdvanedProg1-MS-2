@@ -1,75 +1,75 @@
 
+#ifndef MATRIX_H_
+#define MATRIX_H_
+
 #include <tuple>
 #include "Searchable.h"
+#include "StateValueContainer.h"
+#include <vector>
+
+using namespace std;
 template<class T>
-class Cell {
-
- private:
-  int row;
-  int col;
-  T value;
-
- public:
-  Cell<T>() {}
-  Cell<T>(int rowNum, int colNum, T val) : row(rowNum), col(colNum), value(val) {}
-  const int i() {
-    return col;
-  }
-  const int j() {
-    return row;
-  }
-  const T getValue() const {
-    return value;
-  }
-
-  bool equal_to(Cell<T> cell) {
-    return this->col == cell.col && this->row == cell.row;
-  }
-
-};
-
-template<class T> //TODO support start and goal cells
-class Matrix : public Searchable<Cell<T>> {
-  Cell<T> **matrix;
+class Matrix : public Searchable<T> {
+  vector<vector<Cell<T> *>> matrix;
   int rowsNumber;
   int columnsNumber;
   tuple<int, int> enteringPosition;
   tuple<int, int> exitingPosition;
  public:
-  Matrix(int rows, int columns) : matrix(new Cell<T> *[columns]), rowsNumber(rows), columnsNumber(columns) {
-
+  Matrix(int rows, int columns) : matrix(rows), rowsNumber(rows), columnsNumber(columns) {
+    for (int i = 0; i < rows; i++)
+      matrix[i].resize(columns);
   }
 
-  State<Cell<T>> getInitialState() {
-    State<Cell<T>> firstState;
-    firstState.setStateValue(this->matrix[0][0]);
-
+  State<T> *getInitialState() {
+    State<T> *firstState = new State<T>();
+    auto cell = this->matrix[get<0>(enteringPosition)][get<1>(enteringPosition)];
+    firstState->setStateValue(cell);
+    T val = firstState->getStateValue()->getValue();
+    //TODO support -1 in the entering position
+    firstState->setCost(val);
+    firstState->setSelfCost(val);
     return firstState;
   }
-  bool isGoalState(State<Cell<T>> state) {
-
-    State<Cell<T>> goal;
-    goal.setStateValue(this->matrix[rowsNumber - 1][columnsNumber - 1]);
-    return state.equal_to(goal);
+  bool isGoalState(State<T> *state) {
+    State<T> *goal = new State<T>();;
+    goal->setStateValue(this->matrix[get<0>(exitingPosition)][get<1>(exitingPosition)]);
+    return state->equal_to(goal);
   }
-  vector<State<Cell<T>>> getAllPossibleStates(State<Cell<T>> *state) {
-    vector<State<Cell<T>>> statesVector;
+  vector<State<T> *> getAllPossibleStates(State<T> *state) {
+    vector<State<T> *> statesVector;
 
-    Cell<T> cell = (Cell<T>) state->getStateValue();
+    Cell<T> *cell = (Cell<T> *) state->getStateValue();
 
-    if (cell.i() != rowsNumber - 1) {
-      State<Cell<T>> downCell;
-      downCell.setCameFrom(state);
-      downCell.setStepString("Down");
-      downCell.setStateValue(matrix[cell.i() + 1][cell.j()]);
-      statesVector.push_back(downCell);
+    if (cell->i() != rowsNumber - 1) {
+      State<T> *downCell = new State<T>();;
+      downCell->setCameFrom(state);
+      downCell->setStepString("Down");
+      downCell->setStateValue(matrix[cell->i() + 1][cell->j()]);
+      T val = downCell->getStateValue()->getValue();
+      if (val != -1) {
+        downCell->setCost(val + state->getCost());
+        downCell->setSelfCost(val);
+        statesVector.push_back(downCell);
+      } else {
+        delete downCell;
+      }
+
     }
-    if (cell.j() != columnsNumber - 1) {
-      State<Cell<T>> rightCell;
-      rightCell.setCameFrom(state);
-      rightCell.setStepString("Right");
-      rightCell.setStateValue(matrix[cell.i()][cell.j() + 1]);
-      statesVector.push_back(rightCell);
+    if (cell->j() != columnsNumber - 1) {
+      State<T> *rightCell = new State<T>();
+      rightCell->setCameFrom(state);
+      rightCell->setStepString("Right");
+      rightCell->setStateValue(matrix[cell->i()][cell->j() + 1]);
+      T val = rightCell->getStateValue()->getValue();
+      if (val != -1) {
+        rightCell->setCost(val + state->getCost());
+        rightCell->setSelfCost(val);
+        statesVector.push_back(rightCell);
+      } else {
+        delete rightCell;
+      }
+
     }
 
     return statesVector;
@@ -78,48 +78,49 @@ class Matrix : public Searchable<Cell<T>> {
 
   }
 
-  double h(State<Cell<T>> s) {
+  double h(State<T> *s) {
 
-    Cell<T> cell = (Cell<T>) s.getStateValue();
+    Cell<T> *cell = (Cell<T> *) s->getStateValue();
 
     try {
 
       double disX = 0;
       double disY = 0;
-      int row = cell.i();
-      int col = cell.j();
+      int row = cell->i();
+      int col = cell->j();
 
-      for (int j = cell.j(); j < rowsNumber; j++)
-        disX += (double) matrix[row][j].getValue();
+      for (int j = cell->j(); j < rowsNumber; j++)
+        disX += (double) matrix[row][j]->getValue();
 
-      for (int i = cell.i(); i < rowsNumber; i++)
-        disY += (double) matrix[i][col].getValue();
+      for (int i = cell->i(); i < rowsNumber; i++)
+        disY += (double) matrix[i][col]->getValue();
 
       return abs(disX) + abs(disY);
 
     } catch (...) {
-      double val = (double) cell.getValue();
+      double val = (double) cell->getValue();
       double disX = 0;
       double disY = 0;
-      int row = cell.i();
-      int col = cell.j();
+      int row = cell->i();
+      int col = cell->j();
 
-      for (int j = cell.j(); j < rowsNumber; j++)
+      for (int j = cell->j(); j < rowsNumber; j++)
         disX++;
 
-      for (int i = cell.i(); i < rowsNumber; i++)
+      for (int i = cell->i(); i < rowsNumber; i++)
         disY++;
 
       return abs(disX) + abs(disY);
     }
 
   }
-  void insertToMatrix(Cell<T> c) {
-
-    matrix[c.i()][c.j()] = c;
-
+  void insertToMatrix(Cell<T> *c) {
+    auto i = c->i();
+    auto j = c->j();
+    this->matrix[i][j] = c;
   }
-  const Cell<T> getCell(int i, int j) {
+
+  const Cell<T> *getCell(int i, int j) {
     return matrix[i][j];
   }
 
@@ -139,6 +140,7 @@ class Matrix : public Searchable<Cell<T>> {
   }
 };
 
+#endif //MATRIX_H_
 
 
 

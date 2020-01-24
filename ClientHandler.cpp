@@ -2,6 +2,9 @@
 #include <unistd.h>
 #include <sys/socket.h>
 #include "ClientHandler.h"
+#include "Matrix.h"
+#include "Searchable.h"
+
 const vector<string> splitByChar(string wholeString, char delimeter) {
   vector<string> tokens;
   string token;
@@ -11,30 +14,60 @@ const vector<string> splitByChar(string wholeString, char delimeter) {
   }
   return tokens;
 }
-void MyTestClientHandler::handleClient(int client_port) {
+void MatrixSearchingClientHandler::handleClient(int client_port) {
   char inputBuffer[1024] = {0};
-  char outputBuffer[1024] = {0};
+  const char *outputBuffer = "";
   string solutionString;
   int vl = read(client_port, inputBuffer, 1024);
-  bool stopHandling = false;
-  while (vl != -1) {
-    vector<string> lines = splitByChar(inputBuffer, '\n');
-    for (string line : lines) {
-      if (line == "end"){
-        stopHandling = true;
-        break;
-      }
-      try {
-        //outputBuffer = this->c->getSolutionToProblem(line)
-      } catch (...) {
-        //solutionString = this->solver.solve(line);
-        //this->c->
-        //outputBuffer = this->solver.solve(line);
-      }
-      send(client_port, outputBuffer, strlen(outputBuffer), 0);
+  //bool stopHandling = false;
+  if (vl != -1) {
+
+  }
+
+  //read from the client
+  string input = "";
+  string end = inputBuffer;
+  while (vl != -1 && end.find("end") == string::npos) {
+    input += inputBuffer;
+    vl = read(client_port, inputBuffer, 1024);
+    end = inputBuffer;
+  }
+  vector<string> lines = splitByChar(input, '\n');
+  int columnsNumber = lines.at(0).size();
+  int rowsNumber = lines.size() - 2;
+
+  Matrix<double> *matrix = new Matrix<double>(rowsNumber, columnsNumber);
+
+  //build the matrix:
+  unsigned int row;
+  for (row = 0; row < rowsNumber; row++) {
+    unsigned int col = 0;
+    string line = lines.at(row);
+    vector<string> cellValues = splitByChar(line, ',');
+    for (string value : cellValues) {
+      double val = stod(value);
+      Cell<double> *cell = new Cell<double>(row, col, val);
+      matrix->insertToMatrix(cell);
+      col++;
     }
-    if(stopHandling)
-      break;
+  }
+
+  //the next 2 lines are the entering and exiting locations
+  string line = lines.at(row);
+  vector<string> cellValues = splitByChar(line, ',');
+  matrix->setEnteringPositionRowAndCol(stod(cellValues.at(0)), stod(cellValues.at(1)));
+  row++;
+  line = lines.at(row);
+  cellValues = splitByChar(line, ',');
+  matrix->setEnteringPositionRowAndCol(stod(cellValues.at(0)), stod(cellValues.at(1)));
+
+  try {
+    outputBuffer = this->c->getSolutionToProblem(matrix).c_str();
+  } catch (...) {
+    solutionString = this->solver->solve(matrix);
+    this->c->saveSolutionForProblem(matrix, solutionString);
+    outputBuffer = solutionString.c_str();
+    send(client_port, outputBuffer, strlen(outputBuffer), 0);
   }
 
 }
