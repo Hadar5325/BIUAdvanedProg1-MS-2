@@ -10,6 +10,7 @@ class State {
   StateValueContainer<T> *state;
   double selfCost;
   double cost;
+  double fCost;
   State<T> *cameFrom;
   string stepString;
 
@@ -18,6 +19,7 @@ class State {
     cost = 0;
     cameFrom = nullptr;
     stepString = "";
+    fCost = 0;
   }
 
   bool equal_to(State<T> *state) {
@@ -43,6 +45,15 @@ class State {
   double getCost() {
     return cost;
   }
+
+  void setFCost(double f) {
+    fCost = f;
+  }
+
+  double getFCost() {
+    return fCost;
+  }
+
   void setStateValue(StateValueContainer<T> *value) {
     this->state = value;
   }

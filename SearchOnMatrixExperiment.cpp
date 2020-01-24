@@ -6,7 +6,7 @@
 #include "Server.h"
 #include "Searchable.h"
 #include "Matrix.h"
-
+#include "StringBuilder.h"
 static const vector<string> splitByChar(string wholeString, char delimeter) {
   vector<string> tokens;
   string token;
@@ -42,22 +42,10 @@ void SearchOnMatrixExperiment::createExperimentFiles(vector<Matrix<double> *> ve
         auto states = searcher->search(matrix);
 
         //build the path from the vector of states.
-        string path;
-        auto size = states.size();
-        unsigned int j = size - 1;
-        State<double> *state = states.at(j);
-        path += state->toString();
-
-        for (j = size - 2; j >= 1; --j) {
-          state = states.at(j);
-          path += ", " + state->toString();
-        }
-
-        state = states.at(j);
-        path += ", " + state->toString();
-
+        StringBuilder<double> sb;
+        string path = sb.getSolutionForSearchingProblem(states);
         file << path << endl;
-
+        auto size = states.size();
         file << "Number of vertices : " << size << endl;
         file << "Total cost " << states.at(0)->getCost() << endl;
 
@@ -72,7 +60,7 @@ void SearchOnMatrixExperiment::createExperimentFiles(vector<Matrix<double> *> ve
         avg += size;
       avg = avg / sizesVector.size();
       //add a string of result to the averageNumberOfVerticesOfMatrices string vectors.
-      string matrixAvgResult = matrixTitle + " avg: " + to_string((int)avg);
+      string matrixAvgResult = matrixTitle + " avg: " + to_string((int) avg);
       averageNumberOfVerticesOfMatrices.push_back(matrixAvgResult);
     }
 
