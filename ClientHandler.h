@@ -3,12 +3,20 @@
 #include "Solver.h"
 #include "CacheManager.h"
 
-class ClientHandler {
+class ClientHandler{
+
+ protected:
+  void readFromClient(int client_port, string &input) const;
 
  public:
   virtual void handleClient(int client_port) = 0;
 };
 
+/**
+ *
+ * Client handler for the matrix searching problem.
+ *
+ */
 class MatrixSearchingClientHandler : public ClientHandler {
  private:
   Solver<Matrix<double>, string> *solver;
@@ -29,6 +37,6 @@ class MyTestClientHandler : public ClientHandler {
   MyTestClientHandler(Solver<string, string> *s, CacheManager<string, string> *cm) : solver(s), c(cm) {
 
   };
-  void handleClient(int client_port){};
+  void handleClient(int client_port);
 
 };

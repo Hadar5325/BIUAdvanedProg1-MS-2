@@ -6,7 +6,7 @@ import time
 
 DEFAULT_FILE_NAME = 'matrix_test.txt'
 DEFAULT_TARGET_IP = 'localhost'
-DEFAULT_TARGET_PORT = 5600
+DEFAULT_TARGET_PORT = 5400
 DEFAULT_MAX_BACKLOG_SIZE = 5
 DEFAULT_BUFFER_SIZE = 1024
 DEFAULT_SLEEP_TIME = 0.1
@@ -24,7 +24,7 @@ def send_and_receive():
     # read all lines from file
     with open(args.file_name) as f:
         lines = f.readlines()
-
+    print(lines)
 # lines = [x.strip() for x in lines]
     lines = [x for x in lines]
     logging.debug('Read all lines from %s', args.file_name)

@@ -15,19 +15,21 @@ class StringBuilder {
  public:
   string getSolutionForSearchingProblem(vector<State<T> *> states) {
 
+    //with the given states vector, build the path as the solution.
     string path;
     auto size = states.size();
+    //The states goes from the last state to the first so we build it backwards.
     unsigned int j = size - 1;
     State<double> *state = states.at(j);
     path += state->toString();
 
     for (j = size - 2; j >= 1; --j) {
       state = states.at(j);
-      path += ", " + state->toString();
+      path += " ," + state->toString();
     }
 
     state = states.at(j);
-    path += ", " + state->toString();
+    path += " ," + state->toString();
 
     return path;
   }

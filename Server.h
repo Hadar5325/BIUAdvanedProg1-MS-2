@@ -13,9 +13,11 @@ class Server {
 };
 
 class MySerialServer : public Server {
-
  public:
-  void open(int port, ClientHandler *c);
+  void open(int port, ClientHandler *c) {
+    //use the open function of the base class.
+    Server::open(port, c);
+  };
   void stop();
   void start(ClientHandler *c);
 
@@ -23,9 +25,12 @@ class MySerialServer : public Server {
 class MyParallelServer : public Server {
 
  public:
-  void open(int port, ClientHandler *c){};
-  void stop(){};
-  void start(ClientHandler *c){};
+  void open(int port, ClientHandler *c) {
+    //use the open function of the base class.
+    Server::open(port, c);
+  }
+  void stop();
+  void start(ClientHandler *c);
 
 };
 

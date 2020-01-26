@@ -9,21 +9,25 @@ using namespace server_side;
 
 extern const vector<string> splitByChar(string wholeString, char delimeter);
 
+void checkexample();
 int main(int argc, char const *argv[]) {
   //boot::Main m;
-  //m.main(argv[1]);
+  //m.main("5400");
 
-  //SearchOnMatrixExperiment * search_on_matrix_experiment = new SearchOnMatrixExperiment() ;
-  //search_on_matrix_experiment->experiment();
+ //checkexample();
+
+  SearchOnMatrixExperiment *search_on_matrix_experiment = new SearchOnMatrixExperiment();
+  search_on_matrix_experiment->experiment();
+
+}
+void checkexample() {
   vector<Searcher<double> *> searchers;
   searchers.push_back(new BestFS<double>());
   searchers.push_back(new DFS<double>());
-  searchers.push_back(new BFS<double>());
   searchers.push_back(new AStar<double>());
   string fileName = "../matrix_test.txt";
   fstream file(fileName, ios::in);
   string line;
-
   Matrix<double> *matrix = new Matrix<double>(37, 37);
   //read the values of the matrix, the dim is  ixi
   for (unsigned int row = 0; row < 37; row++) {
@@ -64,16 +68,17 @@ int main(int argc, char const *argv[]) {
 
     for (j = size - 2; j >= 1; --j) {
       state = v.at(j);
-      path += ", " + state->toString();
+      path += " ," + state->toString();
     }
 
     state = v.at(j);
-    path += ", " + state->toString();
+    path += " ," + state->toString();
 
     cout << s->getSearcherName() << endl;
     cout << path << endl;
+    cout << s->getNumberOfNodesEvaluated() << endl;
+
   }
 
   file.close();
-
 }

@@ -7,11 +7,16 @@ using namespace std;
 template<class T>
 class State {
  private:
-  StateValueContainer<T> *state;
+  //The value container of the state
+  StateValueContainer<T> *stateValue;
+  //Self cost to enter the state
   double selfCost;
+  //Accumulated cost of the path.
   double cost;
+  //F costs score - currnet cost + value of the hueristcs function.
   double fCost;
   State<T> *cameFrom;
+  //step string representation
   string stepString;
 
  public:
@@ -23,10 +28,12 @@ class State {
   }
 
   bool equal_to(State<T> *state) {
-    return this->state->equal_to(state->state);
+    return this->stateValue->equal_to(state->stateValue);
   }
   void setCameFrom(State<T> *u) {
+
     this->cameFrom = u;
+    this->cost = cameFrom->cost + this->selfCost;
   }
   State<T> *getCameFrom() {
     return cameFrom;
@@ -55,10 +62,10 @@ class State {
   }
 
   void setStateValue(StateValueContainer<T> *value) {
-    this->state = value;
+    this->stateValue = value;
   }
   StateValueContainer<T> *getStateValue() {
-    return state;
+    return stateValue;
   }
 
   void setStepString(string step) {
@@ -71,6 +78,7 @@ class State {
   }
 
   string toString() {
+    //if is a number cant it to int.
     string s = to_string(cost);
     if (std::is_same<T, float>::value
         || std::is_same<T, int>::value
@@ -81,7 +89,7 @@ class State {
   }
 
   string identifier() {
-    return this->state->identifier();
+    return this->stateValue->identifier();
   }
 
 };

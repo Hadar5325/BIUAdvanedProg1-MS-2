@@ -29,12 +29,14 @@ void SearchOnMatrixExperiment::createExperimentFiles(vector<Matrix<double> *> ve
     //open a file
     string fileName = searcher->getSearcherName() + " Results.txt";
     fstream file(fileName, ios::out);
-    vector<string> averageNumberOfVerticesOfMatrices;
+    vector<string> averageNodesNumberOfMatrices;
+    vector<string> averageCosts;
     for (auto matrix : vectorOfMatrices) {
       //Write a first title
       string matrixTitle = "Matrix" + to_string(matrix->getRowsNumber()) + "x" + to_string(matrix->getColumnsNumber());
       file << matrixTitle << endl;
-      vector<int> sizesVector;
+      vector<int> evaluatedNodesVector;
+      vector<double> costsVector;
       for (int i = 0; i < 10; i++) {
         //Write a second title
         file << "Time #" + to_string(i) << endl;
@@ -45,29 +47,47 @@ void SearchOnMatrixExperiment::createExperimentFiles(vector<Matrix<double> *> ve
         StringBuilder<double> sb;
         string path = sb.getSolutionForSearchingProblem(states);
         file << path << endl;
-        auto size = states.size();
-        file << "Number of vertices : " << size << endl;
+        unsigned int evaluatedNodes = searcher->getNumberOfNodesEvaluated();
+        file << "Number of vertices evaluated : " << evaluatedNodes << endl;
         file << "Total cost " << states.at(0)->getCost() << endl;
 
         file << "\n" << endl;
-        sizesVector.push_back(size);
+        evaluatedNodesVector.push_back(evaluatedNodes);
+        costsVector.push_back(states.at(0)->getCost());
       }
-
+      //calculate the average cost for the current size of matrix
+      double avgCost = 0;
+      for (auto cost : costsVector)
+        avgCost += cost;
+      avgCost = avgCost / costsVector.size();
 
       //calculate the average number of vertices for the current size of matrix
       double avg = 0;
-      for (auto size : sizesVector)
+      for (auto size : evaluatedNodesVector)
         avg += size;
-      avg = avg / sizesVector.size();
-      //add a string of result to the averageNumberOfVerticesOfMatrices string vectors.
+      avg = avg / evaluatedNodesVector.size();
+      //add a string of result to the averageNodesNumberOfMatrices string vectors.
       string matrixAvgResult = matrixTitle + " avg: " + to_string((int) avg);
-      averageNumberOfVerticesOfMatrices.push_back(matrixAvgResult);
+      averageNodesNumberOfMatrices.push_back(matrixAvgResult);
+      //as well to costs average vector.
+      string matrixAvgCost = matrixTitle + " avg cost : " + to_string((int) avgCost);
+      averageCosts.push_back(matrixAvgCost);
     }
 
     //write the results for the current searcher for each of the matrices sizes.
     file << "Results:" << endl;
+    file << "Nodes:" << endl;
+
     file << "\n" << endl;
-    for (string s : averageNumberOfVerticesOfMatrices) {
+    for (string s : averageNodesNumberOfMatrices) {
+      file << s << endl;
+    }
+
+    file << "\n" << endl;
+    file << "Costs:" << endl;
+
+    file << "\n" << endl;
+    for (string s : averageCosts) {
       file << s << endl;
     }
 

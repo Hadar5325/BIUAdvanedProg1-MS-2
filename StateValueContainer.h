@@ -8,11 +8,17 @@
 #include <string>
 #include <type_traits>
 using namespace std;
+
+/**
+ *
+ * Abstact class for a value container for State<T>
+ *
+ * @tparam T innver value type
+ */
 template<class T>
 class StateValueContainer {
 
  public:
-  //TODO make this const
   virtual const T getValue() = 0;
   virtual bool equal_to(StateValueContainer<T> *s) {};
   virtual string identifier() = 0;
@@ -20,12 +26,12 @@ class StateValueContainer {
 };
 
 template<class T>
-class Cell : public StateValueContainer<T> {
+class Cell : public StateValueContainer<T> { // A matrix cell is a state value container.
 
  private:
-  int row;
-  int col;
-  T value;
+  int row;//row of the cell of the matrix
+  int col;//col of the cell of the matrix.
+  T value; //the inner value of the cell - the value that is stored, in our case is the double costs.
 
  public:
   Cell<T>(int rowNum, int colNum) : row(rowNum), col(colNum) {
@@ -47,13 +53,15 @@ class Cell : public StateValueContainer<T> {
 
   bool equal_to(StateValueContainer<T> *c) {
     Cell<T> *cell = (Cell<T> *) c;
+
+    //Check if the rows and cols are equal
     return this->col == cell->col && this->row == cell->row;
   }
 
 
 
-  string identifier() {
-    return to_string(row) + "," + to_string(row);
+  string identifier() { //used for hashmaps for states.
+    return to_string(row) + "," + to_string(col);
   }
 };
 #endif //BIUADVANEDPROG1_MS_2__STATEVALUECONTAINER_H_
