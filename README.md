@@ -61,6 +61,7 @@ Example:
 Down (12) ,Down (13) ,Right (18) ,Down (24) ,Right (26) ,Down (28) ,Down (30)...
 ```
 The matrices are read from a txt file - lines of numbers separated by comma (each line is separated by ```\n```), the next 2 lines after the matrice are the entering point and the exiting point- 2 numbers separted by a comma that the first number is the nubmer of row and the second is the number of column. When the clients wants to stop, it send us the word "end" so we know to stop reading form them. 
+* number -1 is a wall for the path so the entering and exiting points can not be with -1 value.
 * you can create matrices of your own and try the program on it (in the fromat explained above,in the last line is "end".
 * you can use ```matrixbuilder.py``` to create matrices and choose 10 of them (needs to be in files named ```Matrix[1-10].txt```)
 * parallel_tester.py read the files of matrices with name of ```Matrix[1-10].txt```.
