@@ -7,7 +7,7 @@ https://github.com/AmitTwito/BIUAdvanedProg1-MS-2
 ## Background on the project
 This project is a 2 parts assignment as a part of a course called Advanced Programming 1 in our Computer Seince degree of second year in Bar Ilan University, written in c++ (c++14 and bellow).
 
-## Miles stone 2 - Problem solving server
+## Mile stone 2 - Problem solving server
 In this second milestone of the project, we'll build a tcp server that accepts clients that will send problems and the server 
 will send back solutions. The implementation of the proggram will be according to the s.o.l.i.d principles through making everything generic as possible and open to extensions.
 
