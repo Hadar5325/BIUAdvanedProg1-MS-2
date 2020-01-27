@@ -49,7 +49,7 @@ Open terminal and run the following:
 
 4.The program is waiting for a client(s) to connect to a server that wis opened, then we'll need to open a new cmd or terminal window
 from the folder with the py files and run the wanted python script by : ``` python SCRIPT_NAME.py```.
-make sure you have python 2.7 installed.
+make sure you have python 2.7 installed.The port number that you entered needs to be in the script, it is located at the top - edit it (the server needs to be opened in the same port that the clients connect.)
 
 ### General explanations on the code - how does it work
 This proggram opens a server of the following types:
