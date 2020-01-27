@@ -55,21 +55,9 @@ from the folder with the py files and run the wanted python script by : ``` pyth
 ### General explanations on the code - how does it work
 
 
-There are 2 main parts:
 
 
-So, first we want to open a server at a given port ,and wait for the simulator to connect as a client. Using the      ```OpenServerCommand```, we initialize a thread of executing the ```OpenServerCommand```, so the server that we open will always run in the background.
-The simulator sends 10 times in a second 36 value separated by commas(The simulator used the generic_small.xml file from previous topic), and once the simulator connects, we'll initialize a thread that start reading the values and updating the matched values in the matched indexes bt separating each line of 36 values. 
-In the meantime, we initialize a thread of ```ConnectCommand``` that connects us as a clinet (by a given IP and a port) to the simulator that will be used as our server and that thread will be always running so we can send a request to set a new value to a simulator path.
-
-In this project the local host is a server and a client.
-
-After those, we can continue iterating over the tokens vector and indetify wanted command by sending the ```tokensVector.at(index)``` to the command map.
-
-Once we get to part of executing the PrintCommand with the string "done" the program will finish.
-
-
-### Possible changes / improvments
--Configuring the problems that the clients send to the server with identifiers to problems so we can choose the write templates 
-to work with - can be with enum.
+### Possible changes / improvements
+-Configuring the problems that the clients send to the server with identifiers to problems so we can choose the right 
+templates to work with - can be with enum.
 
