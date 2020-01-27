@@ -1,7 +1,7 @@
 from random import randint
-for n in xrange(10, 51, 1):
+for n in xrange(10, 51, 4):
     number_list = []
-    with open("Matrix" + str(n) + ".txt", 'w', 1024) as matrix:
+    with open("Matrix" + str(n) + "x" + str(n) + ".txt", 'w', 1024) as matrix:
         for i in range(0, n):
             row_list = []
             for j in range(0, n):

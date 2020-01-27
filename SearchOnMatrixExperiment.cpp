@@ -24,7 +24,7 @@ void SearchOnMatrixExperiment::createExperimentFiles(vector<Matrix<double> *> ve
   searchers.push_back(new DFS<double>());
   searchers.push_back(new BFS<double>());
   searchers.push_back(new AStar<double>());
-  //for each searcher , run each (10 matrices) matrix 10 times;
+  //for each searcher , run each (10 matricesexperiment) matrix 10 times;
   for (auto searcher : searchers) {
     //open a file
     string fileName = searcher->getSearcherName() + " Results.txt";
@@ -74,7 +74,7 @@ void SearchOnMatrixExperiment::createExperimentFiles(vector<Matrix<double> *> ve
       averageCosts.push_back(matrixAvgCost);
     }
 
-    //write the results for the current searcher for each of the matrices sizes.
+    //write the results for the current searcher for each of the matricesexperiment sizes.
     file << "Results:" << endl;
     file << "Nodes:" << endl;
 
@@ -104,7 +104,7 @@ vector<Matrix<double> *> SearchOnMatrixExperiment::createVectorOfMatrices() {
   for (unsigned int i = 10; i <= 50; i += 4) {
 
     //open the file for reading.
-    string fileName = "../matrices/Matrix" + to_string(i) + "x" + to_string(i) + ".txt";
+    string fileName = "../matricesexperiment/Matrix" + to_string(i) + "x" + to_string(i) + ".txt";
     fstream file(fileName, ios::in);
     string line;
 
