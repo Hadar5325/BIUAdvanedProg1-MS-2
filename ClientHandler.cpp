@@ -123,11 +123,24 @@ void MyTestClientHandler::handleClient(int client_port) {
 
   string problem = input.substr(0, input.find_first_of("end"));
   if (this->c->isCached(&problem)) { //if already has solution
-    solutionString = this->c->getSolutionToProblem(&problem) + '\n';
-    outputBuffer = solutionString.c_str();
-    //send the solution to client.
-    send(client_port, outputBuffer, strlen(outputBuffer), 0);
 
+    try {
+      //try to get it
+      solutionString = this->c->getSolutionToProblem(&problem) + '\n';
+      outputBuffer = solutionString.c_str();
+      //send the solution to client.
+      send(client_port, outputBuffer, strlen(outputBuffer), 0);
+      close(client_port);
+    } catch (const char *e) { //cant open the file -solve it.
+      //solver it with the solver, and save the solution.
+      solutionString = this->solver->solve(&problem);
+      this->c->saveSolutionForProblem(&problem, solutionString);
+      solutionString += '\n';
+      outputBuffer = solutionString.c_str();
+      //send the solution to client.
+      send(client_port, outputBuffer, strlen(outputBuffer), 0);
+      close(client_port);
+    }
   } else {
     //solver it with the solver, and save the solution.
     solutionString = this->solver->solve(&problem);
@@ -136,6 +149,7 @@ void MyTestClientHandler::handleClient(int client_port) {
     outputBuffer = solutionString.c_str();
     //send the solution to client.
     send(client_port, outputBuffer, strlen(outputBuffer), 0);
+    close(client_port);
   }
 
 }
