@@ -24,6 +24,7 @@ Searchable.h, Searcher.h
 Server.cpp, Server.h
 Solver.h, State.h
 StateValueContainer.h, StringBuilder.h
+AStar.h, BestFS.h, BFS.h, DFS.h
 
 matrices folder with:
 auto_client.py
@@ -53,7 +54,7 @@ make sure you have python 2.7 installed.The port number that you entered needs t
 
 ### General explanations on the code - how does it work
 This proggram opens a server of the following types:
-* ```MySerialServer``` is for accepting clients in a serial way- handling one client each time
+* ```MySerialServer``` is for accepting clients in a serial way- handling one client each time in a loop.
 * ```MyParallelServer``` is for accepting clients in a parallel way - can handle 10 clients in the same time.
 Once it is opened, it waits for clients to connect. In this proggram the clients send matrices of numbers and an entering point and an exiting point, and the server will use A ```Searcher``` - the best algorithm that was (algorithm AStar) and send a shortest path (cheapest path) from the entering to the exiting point in the matric, as the numbers in every cell are the costs of stepping on the current cell.
 Example:
@@ -100,17 +101,16 @@ and its role is to get solution to the problem with ```O(1)``` time and store ne
 
 The ```Solver``` is a template interface as well and its role is to solve the given problem.
 ```MatrixProblemSolverOA``` implements ```Solver<Matrix<double>, string>``` and using the  ObjectAdapter DP , it has a ```Searcher```
-member and it connects the problem to the solver by using its ```Searcher``` 's function ```Seacher``` on a given problem.
+member and it connects the problem to the solver by using its ```Searcher``` 's function ```search``` on a given problem  - ```Searchable```. The search function returns vector of states - every states represnt a position on the searchables object that holds members like cost for the searching alogrithms. The vector is used to back trace the path to build the solution.
 
 The ```ClientHandler``` is an abstract class for client handlers.Its role is to be used to handle the cilents given that we know the problem.```MatrixSearchingClientHandler``` inherits it and is used for our problem of searching the shortest(cheapest path)
 in a matrix.
 
-The server that is opened is using the client handler to handle the clients.
+The server that is opened is using the client handler to handle the clients. there is a timeout of 2 minutes if no client connects.
 
-As you can see, we can create more classes to implement the interfaces and keep the generic way of working to match the problems that the clients send to us, as well the solution that we send to the clients.
+As you can see, we can create more combinations of problem solving with creating classes to implement the interfaces and abstract class keep the generic way of working to match the problems that the clients send to us, as well the solution that we send to the clients.
 
 
 ### Possible changes / improvements
--Configuring the problems that the clients send to the server with identifiers to problems so we can choose the right 
-templates to work with - can be with enum.
+-Configuring the problems that the clients send to the server with identifiers to problems so we can choose the right templates to work with - can be with enum.
 
