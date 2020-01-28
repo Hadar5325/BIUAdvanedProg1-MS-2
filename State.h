@@ -3,6 +3,8 @@
 
 #include <string>
 #include "StateValueContainer.h"
+#include <iostream>
+#include <map>
 using namespace std;
 template<class T>
 class State {
@@ -18,6 +20,8 @@ class State {
   State<T> *cameFrom;
   //step string representation
   string stepString;
+  //neighbors map for directions -the keys are the identifier of the neighbor
+  map<string, string> neighborsDirections;
 
  public:
   State<T>() {
@@ -31,9 +35,9 @@ class State {
     return this->stateValue->equal_to(state->stateValue);
   }
   void setCameFrom(State<T> *u) {
-
     this->cameFrom = u;
     this->cost = cameFrom->cost + this->selfCost;
+    this->stepString = u->neighborsDirections[this->getIndetifier()];
   }
   State<T> *getCameFrom() {
     return cameFrom;
@@ -88,10 +92,19 @@ class State {
 
   }
 
-  string identifier() {
-    return this->stateValue->identifier();
+  string getIndetifier() {
+    string str = this->stateValue->identifier();
+    return str;
   }
 
+  void setNeighborsDirections(map<string, string> neighborsDirectionsMap) {
+    neighborsDirections = neighborsDirectionsMap;
+  }
+  string getDirectionOfNeighbor(string identifingString) {
+
+    return neighborsDirections[identifingString];
+
+  }
 };
 
 #endif

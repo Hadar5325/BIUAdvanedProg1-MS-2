@@ -10,6 +10,7 @@
 #include "Matrix.h"
 #include "StateValueContainer.h"
 #include "StringBuilder.h"
+#include <vector>
 using namespace std;
 
 template<class Problem, class Solution>
@@ -30,7 +31,9 @@ class MatrixProblemSolverOA : public Solver<Matrix<T>, string> {
 
   string solve(Matrix<T> *prob) {
     //Solve the problem by using the searcher member's search func.
-    auto states = this->searcher->search(prob);
+    vector<State<T> *> states;
+    states = this->searcher->search(prob);
+
     //build the solution.
     StringBuilder<T> sb;
     return sb.getSolutionForSearchingProblem(states);

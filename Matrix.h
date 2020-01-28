@@ -19,104 +19,101 @@ class Matrix : public Searchable<T> {
   string matrixString;
   int rowsNumber;
   int columnsNumber;
+  //all possible states of the matrix cells
+  vector<vector<State<T> *>> allStates;
+
+  //map<string, vector<State<T>*>> neighborsMap;
  public:
-  Matrix(int rows, int columns) : matrix(rows), rowsNumber(rows), columnsNumber(columns) {
+  Matrix(int rows, int columns) : matrix(rows), allStates(rows), rowsNumber(rows), columnsNumber(columns) {
     //Initialize the "matrix" - the vector of vectors of cells.
     for (int i = 0; i < rows; i++)
       matrix[i].resize(columns);
+    //Initialize matrix of states
+    for (int i = 0; i < rows; i++)
+      allStates[i].resize(columns);
+
   }
 
   State<T> *getInitialState() {
-    //Create a new state with the cell of the entering position in the matrix.
-    State<T> *firstState = new State<T>();
-    auto cell = this->matrix[get<0>(enteringPosition)][get<1>(enteringPosition)];
-    firstState->setStateValue(cell);
-    T val = firstState->getStateValue()->getValue();
-    firstState->setCost(val);
-    firstState->setSelfCost(val);
-    return firstState;
+    int i = get<0>(enteringPosition);
+    int j = get<1>(enteringPosition);
+    allStates[i][j]->setCost(allStates[i][j]->getSelfCost());
+    return allStates[i][j];
   }
 
   bool isGoalState(State<T> *state) {
-    //Create a new state with the cell of the exiting position in the matrix.
-    State<T> *goal = new State<T>();;
-    goal->setStateValue(this->matrix[get<0>(exitingPosition)][get<1>(exitingPosition)]);
-    return state->equal_to(goal);
+    int i = get<0>(exitingPosition);
+    int j = get<1>(exitingPosition);
+    return state->equal_to(allStates[i][j]);
   }
   vector<State<T> *> getAllPossibleStates(State<T> *state) {
+
+    Cell<T> *cell = (Cell<T> *) state->getStateValue();
     //Vector of the states neighbors.
     vector<State<T> *> statesVector;
+    map<string, string> neighborsDirectionsMap;
 
     //convert the state value to cell<T>* so we can handle it - we are in the implementation of cells matrix.
-    Cell<T> *cell = (Cell<T> *) state->getStateValue();
-
 
     //Create states by the right cell and down cell of the current state - if exists (if is by wall).
     int i = cell->i();
     int j = cell->j();
-    if (i < rowsNumber - 1 && j >= 0 && j <=columnsNumber - 1) {
-      State<T> *downCell = new State<T>();
-      downCell->setStateValue(matrix[i + 1][j]);
-      T val;
-      val = downCell->getStateValue()->getValue();
+    if (i >= 0 && i <= columnsNumber - 1 && j >= 0 && j <= columnsNumber - 1) { //as long as it in the matrix limits
+      if (i < rowsNumber - 1) {
+        //if the value is minus 1, ignore the cell and dont add it to the neighbors.
+        if (matrix[i + 1][j]->getValue() != -1) {
+          statesVector.push_back(allStates[i + 1][j]);
+          //add the direction to the map of neighbors directions for the current state
+          neighborsDirectionsMap.insert(make_pair(allStates[i + 1][j]->getIndetifier(), "Down"));
 
-      //if the value is minus 1, ignore the cell and dont add it to the neighbors.
-      if (val != -1) {
-        downCell->setStepString("Down");
-        downCell->setSelfCost(val);
-        statesVector.push_back(downCell);
-      } else {
-        delete downCell;
+        }
+      }
+      if (j < columnsNumber - 1) {
+
+        //if the value is minus 1, ignore the cell and dont add it to the neighbors.
+        if (matrix[i][j + 1]->getValue() != -1) {
+          statesVector.push_back(allStates[i][j + 1]);
+          //add the direction to the map of neighbors directions for the current state
+          neighborsDirectionsMap.insert(make_pair(allStates[i][j + 1]->getIndetifier(), "Right"));
+        }
+
       }
 
-    }
-    if (j < columnsNumber - 1 && i >= 0 && i <=columnsNumber - 1) {
-      State<T> *rightCell = new State<T>();
-      rightCell->setStateValue(matrix[i][j + 1]);
-      T val = rightCell->getStateValue()->getValue();
-      //if the value is minus 1, ignore the cell and dont add it to the neighbors.
-      if (val != -1) {
-        rightCell->setStepString("Right");
-        rightCell->setSelfCost(val);
-        //rightCell->setCameFrom(state);
-        statesVector.push_back(rightCell);
-      } else {
-        delete rightCell;
+      if (i > 0) {
+
+        if (matrix[i - 1][j]->getValue() != -1) {
+          statesVector.push_back(allStates[i - 1][j]);
+          //add the direction to the map of neighbors directions for the current state
+          neighborsDirectionsMap.insert(make_pair(allStates[i - 1][j]->getIndetifier(), "Up"));
+        }
+
       }
-
-    }
-
-    if (i > 0 && j >= 0 && j <=columnsNumber - 1) {
-      State<T> *upCell = new State<T>();;
-      upCell->setStateValue(matrix[i - 1][j]);
-      T val = upCell->getStateValue()->getValue();
-      //if the value is minus 1, ignore the cell and dont add it to the neighbors.
-      if (val != -1) {
-        upCell->setSelfCost(val);
-        upCell->setStepString("Up");
-        //upCell->setCameFrom(state);
-        statesVector.push_back(upCell);
-      } else {
-        delete upCell;
+      if (j > 0) {
+        //if the value is minus 1, ignore the cell and dont add it to the neighbors.
+        if (matrix[i][j - 1]->getValue() != -1) {
+          statesVector.push_back(allStates[i][j - 1]);
+          //add the direction to the map of neighbors directions for the current state
+          neighborsDirectionsMap.insert(make_pair(allStates[i][j - 1]->getIndetifier(), "Left"));
+        }
       }
-
     }
-    if (j > 0 && i >= 0 && i <=columnsNumber - 1) {
-      State<T> *leftCell = new State<T>();
-      leftCell->setStateValue(matrix[i][j - 1]);
-      T val = leftCell->getStateValue()->getValue();
-      //if the value is minus 1, ignore the cell and dont add it to the neighbors.
-      if (val != -1) {
-        leftCell->setSelfCost(val);
-        leftCell->setStepString("Left");
-        //leftCell->setCameFrom(state);
-        statesVector.push_back(leftCell);
-      } else {
-        delete leftCell;
-      }
 
-    }
+    state->setNeighborsDirections(neighborsDirectionsMap);
+
     return statesVector;
+  }
+
+  vector<State<T>*> getAllStates(){
+
+    vector<State<T>*> all;
+    for(int i = 0; i < rowsNumber; i++){
+      for(int j = 0; j < columnsNumber; j++){
+        all.push_back(allStates[i][j]);
+      }
+    }
+
+    return all;
+
   }
   operator string() const {
     return matrixString;
@@ -142,6 +139,23 @@ class Matrix : public Searchable<T> {
     auto i = c->i();
     auto j = c->j();
     this->matrix[i][j] = c;
+
+    State<T> *state = new State<T>();
+    state->setStateValue(matrix[i][j]);
+    state->setSelfCost(c->getValue());
+    allStates[i][j] = state;
+  }
+
+  void resetAllStates() {
+    for (int i = 0; i < rowsNumber; i++) {
+      for (int j = 0; j < rowsNumber; j++) {
+        State<T> *state = new State<T>();
+        state->setStateValue(matrix[i][j]);
+        state->setSelfCost(matrix[i][j]->getValue());
+        allStates[i][j] = state;
+      }
+    }
+
   }
 
   const Cell<T> *getCell(int i, int j) {
@@ -178,6 +192,7 @@ class Matrix : public Searchable<T> {
   ~Matrix() {
     matrix.clear();
   }
+
 };
 
 #endif //MATRIX_H_

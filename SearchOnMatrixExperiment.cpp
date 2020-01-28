@@ -7,6 +7,11 @@
 #include "Searchable.h"
 #include "Matrix.h"
 #include "StringBuilder.h"
+#include "BFS.h"
+#include "AStar.h"
+#include "DFS.h"
+#include "BestFS.h"
+
 static const vector<string> splitByChar(string wholeString, char delimeter) {
   vector<string> tokens;
   string token;
@@ -32,6 +37,9 @@ void SearchOnMatrixExperiment::createExperimentFiles(vector<Matrix<double> *> ve
     vector<string> averageNodesNumberOfMatrices;
     vector<string> averageCosts;
     for (auto matrix : vectorOfMatrices) {
+      if (matrix->getRowsNumber() == 14) continue;
+      if(matrix->getRowsNumber() == 18)
+        int a=0;
       //Write a first title
       string matrixTitle = "Matrix" + to_string(matrix->getRowsNumber()) + "x" + to_string(matrix->getColumnsNumber());
       file << matrixTitle << endl;
@@ -72,6 +80,8 @@ void SearchOnMatrixExperiment::createExperimentFiles(vector<Matrix<double> *> ve
       //as well to costs average vector.
       string matrixAvgCost = matrixTitle + " avg cost : " + to_string((int) avgCost);
       averageCosts.push_back(matrixAvgCost);
+
+      matrix->resetAllStates();
     }
 
     //write the results for the current searcher for each of the matricesexperiment sizes.

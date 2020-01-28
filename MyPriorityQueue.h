@@ -53,18 +53,7 @@ class MyPriorityQueue : public std::priority_queue<T, Container, StateCostCompar
     }
     return nullptr;
   }
-  State<T> *findAndReturn(State<T> *val) {
-    auto first = this->c.cbegin();
-    auto last = this->c.cend();
-    while (first != last) {
-      auto f = *first;
-      if (val->equal_to(f)) {
-        return f;
-      }
-      ++first;
-    }
-    return nullptr;
-  }
+
 
 
   int size() {
@@ -127,18 +116,6 @@ class FScorePriorityQueue : public std::priority_queue<T, Container, StateFCostC
       auto f = *first;
       if (val->equal_to(f)) {
         this->c.erase(first);
-        return f;
-      }
-      ++first;
-    }
-    return nullptr;
-  }
-  State<T> *findAndReturn(State<T> *val) {
-    auto first = this->c.cbegin();
-    auto last = this->c.cend();
-    while (first != last) {
-      auto f = *first;
-      if (val->equal_to(f)) {
         return f;
       }
       ++first;

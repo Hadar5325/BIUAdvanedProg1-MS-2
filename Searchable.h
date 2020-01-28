@@ -15,7 +15,8 @@ class Searchable {
   virtual vector<State<T> *> getAllPossibleStates(State<T> *state) = 0;
   //Casting function to string for the searchable.
   virtual operator std::string() const = 0;
-  //Heuristics function for the AStar algorithem
+  //Heuristics function for the AStar algorithm
   virtual double heuristicsFunction(State<T> *s) = 0;
+  virtual vector<State<T> *> getAllStates() = 0;
 };
 
