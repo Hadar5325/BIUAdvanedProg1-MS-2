@@ -55,7 +55,7 @@ void MatrixSearchingClientHandler::handleClient(int client_port) {
         matrix->insertToMatrix(cell);
         col++;
       } catch (...) {
-        throw  "Can not convert value of matrix to double";
+        throw "Can not convert value of matrix to double";
       }
     }
   }
@@ -83,13 +83,22 @@ void MatrixSearchingClientHandler::handleClient(int client_port) {
       close(client_port);
       delete matrix;
     } catch (const char *e) { //cant open the file -solve it.
-      solutionString = this->solver->solve(matrix);
-      this->c->saveSolutionForProblem(matrix, solutionString);
-      solutionString += '\n';
-      outputBuffer = solutionString.c_str();
-      send(client_port, outputBuffer, strlen(outputBuffer), 0);
-      close(client_port);
-      delete matrix;
+      try {
+        cacheMutex.lock();
+        solutionString = this->solver->solve(matrix);
+        cacheMutex.unlock();
+        this->c->saveSolutionForProblem(matrix, solutionString);
+        solutionString += '\n';
+        outputBuffer = solutionString.c_str();
+        send(client_port, outputBuffer, strlen(outputBuffer), 0);
+        close(client_port);
+        delete matrix;
+      } catch (const char *e) {
+        close(client_port);
+        delete matrix;
+        throw e;
+      }
+
     }
 
   } else { //not cached -> solve it and save the solution.
@@ -108,6 +117,7 @@ void MatrixSearchingClientHandler::handleClient(int client_port) {
     } catch (const char *e) {
       close(client_port);
       delete matrix;
+      throw e;
     }
 
   }
